@@ -16,3 +16,12 @@ require (
 	github.com/urfave/cli/v2 v2.3.0
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 )
+
+replace (
+	// k8s-post-assemble-build branch
+	github.com/go-vela/pkg-executor => github.com/cognifloyd/pkg-executor v0.10.0-rc1.0.20211011220310-0829c791f72c
+	// k8s-post-assemble-build branch
+	github.com/go-vela/pkg-runtime => github.com/cognifloyd/pkg-runtime v0.9.1-0.20211011221120-3bc1ffc3e8af
+	// k8s-dns-names branch
+	github.com/go-vela/types => github.com/cognifloyd/vela-types v0.10.0-rc1.0.20211011222123-7045496b403e
+)
