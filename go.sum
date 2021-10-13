@@ -89,8 +89,8 @@ github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDk
 github.com/cncf/udpa/go v0.0.0-20191209042840-269d4d468f6f/go.mod h1:M8M6+tZqaGXZJjfX53e64911xZQV5JYwmTeXPW+k8Sc=
 github.com/cognifloyd/pkg-executor v0.10.0-rc1.0.20211012235243-eff623a928d1 h1:5qwkeVPGHuH11ECw5XTpoIrr6v29qFPHTUMFUVnXCR8=
 github.com/cognifloyd/pkg-executor v0.10.0-rc1.0.20211012235243-eff623a928d1/go.mod h1:1sgfiRlz5z9KRQAFy99CG1UE9Gx0GVz2fYoBGY05WSA=
-github.com/cognifloyd/pkg-runtime v0.10.0-rc1.0.20211013005510-554c4a12bea4 h1:+f2fy6xcAPHm+71LtV5aFwmfy7wR1H3+o2dQ0k3dOqk=
-github.com/cognifloyd/pkg-runtime v0.10.0-rc1.0.20211013005510-554c4a12bea4/go.mod h1:AE4xLXfX5SSQJZimy8jqrnaTtXeKeK+/CYbVPI8vlm8=
+github.com/cognifloyd/pkg-runtime v0.10.0-rc1.0.20211013025442-f92f2b9a5985 h1:BCszesx4LZk+3e25aeqWy+dX0TU/Y4hlzigDiK3eSPY=
+github.com/cognifloyd/pkg-runtime v0.10.0-rc1.0.20211013025442-f92f2b9a5985/go.mod h1:EmMAd4WpNj4devAKn53806IpUYnE1AyJLiD2B670148=
 github.com/cognifloyd/vela-types v0.10.0-rc1.0.20211011222123-7045496b403e h1:1KYDmfQJv56vvj1ZgsaMuVlt1rKI24J0YZNvg6wDnyA=
 github.com/cognifloyd/vela-types v0.10.0-rc1.0.20211011222123-7045496b403e/go.mod h1:6taTlivaC0wDwDJVlc8sBaVZToyzkyDMtGUYIAfgA9M=
 github.com/containerd/containerd v1.4.4 h1:rtRG4N6Ct7GNssATwgpvMGfnjnwfjnu/Zs9W3Ikzq+M=
