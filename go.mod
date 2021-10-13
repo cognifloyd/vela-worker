@@ -19,9 +19,9 @@ require (
 
 replace (
 	// k8s-post-assemble-build branch
-	github.com/go-vela/pkg-executor => github.com/cognifloyd/pkg-executor v0.10.0-rc1.0.20211012140029-7553b5fe45f1
+	github.com/go-vela/pkg-executor => github.com/cognifloyd/pkg-executor v0.10.0-rc1.0.20211012235243-eff623a928d1
 	// k8s-post-assemble-build branch
-	github.com/go-vela/pkg-runtime => github.com/cognifloyd/pkg-runtime v0.10.0-rc1.0.20211012051601-30e951297f1b
+	github.com/go-vela/pkg-runtime => github.com/cognifloyd/pkg-runtime v0.10.0-rc1.0.20211013005510-554c4a12bea4
 	// k8s-dns-names branch
 	github.com/go-vela/types => github.com/cognifloyd/vela-types v0.10.0-rc1.0.20211011222123-7045496b403e
 )

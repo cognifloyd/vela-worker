@@ -87,10 +87,10 @@ github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e/go.mod h1:nSuG5e5P
 github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1/go.mod h1:Q3SI9o4m/ZMnBNeIyt5eFwwo7qiLfzFZmjNmxjkiQlU=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
 github.com/cncf/udpa/go v0.0.0-20191209042840-269d4d468f6f/go.mod h1:M8M6+tZqaGXZJjfX53e64911xZQV5JYwmTeXPW+k8Sc=
-github.com/cognifloyd/pkg-executor v0.10.0-rc1.0.20211012140029-7553b5fe45f1 h1:UjSbnzX5PC1oIyIHHGqaxMjrFs9y/umbxKo1dx1dUgc=
-github.com/cognifloyd/pkg-executor v0.10.0-rc1.0.20211012140029-7553b5fe45f1/go.mod h1:1sgfiRlz5z9KRQAFy99CG1UE9Gx0GVz2fYoBGY05WSA=
-github.com/cognifloyd/pkg-runtime v0.10.0-rc1.0.20211012051601-30e951297f1b h1:BdClKPRAn9X6doA/mlKsWwytmFb4hHwx5mStG0zhdN0=
-github.com/cognifloyd/pkg-runtime v0.10.0-rc1.0.20211012051601-30e951297f1b/go.mod h1:AE4xLXfX5SSQJZimy8jqrnaTtXeKeK+/CYbVPI8vlm8=
+github.com/cognifloyd/pkg-executor v0.10.0-rc1.0.20211012235243-eff623a928d1 h1:5qwkeVPGHuH11ECw5XTpoIrr6v29qFPHTUMFUVnXCR8=
+github.com/cognifloyd/pkg-executor v0.10.0-rc1.0.20211012235243-eff623a928d1/go.mod h1:1sgfiRlz5z9KRQAFy99CG1UE9Gx0GVz2fYoBGY05WSA=
+github.com/cognifloyd/pkg-runtime v0.10.0-rc1.0.20211013005510-554c4a12bea4 h1:+f2fy6xcAPHm+71LtV5aFwmfy7wR1H3+o2dQ0k3dOqk=
+github.com/cognifloyd/pkg-runtime v0.10.0-rc1.0.20211013005510-554c4a12bea4/go.mod h1:AE4xLXfX5SSQJZimy8jqrnaTtXeKeK+/CYbVPI8vlm8=
 github.com/cognifloyd/vela-types v0.10.0-rc1.0.20211011222123-7045496b403e h1:1KYDmfQJv56vvj1ZgsaMuVlt1rKI24J0YZNvg6wDnyA=
 github.com/cognifloyd/vela-types v0.10.0-rc1.0.20211011222123-7045496b403e/go.mod h1:6taTlivaC0wDwDJVlc8sBaVZToyzkyDMtGUYIAfgA9M=
 github.com/containerd/containerd v1.4.4 h1:rtRG4N6Ct7GNssATwgpvMGfnjnwfjnu/Zs9W3Ikzq+M=
