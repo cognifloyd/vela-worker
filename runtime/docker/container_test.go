@@ -329,10 +329,12 @@ func TestDocker_TailContainer(t *testing.T) {
 			container: new(pipeline.Container),
 		},
 	}
+	runContainerDone := make(chan struct{})
+	close(runContainerDone)
 
 	// run tests
 	for _, test := range tests {
-		_, err = _engine.TailContainer(context.Background(), test.container)
+		_, err = _engine.TailContainer(context.Background(), runContainerDone, test.container)
 
 		if test.failure {
 			if err == nil {
