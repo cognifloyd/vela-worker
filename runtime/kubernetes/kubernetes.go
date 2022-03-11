@@ -23,6 +23,8 @@ type config struct {
 	Images []string
 	// specifies a list of host volumes to use for the Kubernetes client
 	Volumes []string
+	// specifies a Pod config object (from a CRD) that defines Pod-creation defaults
+	//PodDefaults
 }
 
 type client struct {
