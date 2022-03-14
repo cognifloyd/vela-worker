@@ -9,38 +9,38 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// Worker defines the config for a given worker.
-type Worker struct {
+// PipelinePod defines the config for a given worker.
+type PipelinePod struct {
 	metav1.TypeMeta `json:",inline"`
 	// Standard object's metadata.
 	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
 	// +optional
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	// Specification of the desired Worker.
-	// +optional
-	Spec WorkerSpec `json:"spec,omitempty"`
-}
-
-// WorkerSpec is the specification of the desired behavior of the Worker.
-type WorkerSpec struct {
-	// Template describes the pods that will be created.
-	PipelinePodTemplate PipelinePodTemplateSpec `json:"pipelinePodTemplate"`
-}
-
-// PipelinePodTemplateSpec describes the data defaults to use when creating each pipeline pod.
-type PipelinePodTemplateSpec struct {
-	// Limited set of standard object's metadata.
-	// +optional
-	PipelinePodMeta `json:"metadata,omitempty"`
-
-	// Specification of the desired default behavior of the pipeline pod.
+	// Spec defines the PipelinePod configuration for Vela Workers.
 	// +optional
 	Spec PipelinePodSpec `json:"spec,omitempty"`
 }
 
-// PipelinePodMeta is metadata defaults to use in the pipeline pod's meta field.
-type PipelinePodMeta struct {
+// PipelinePodSpec configures creation of Pipeline Pods by Vela Workers.
+type PipelinePodSpec struct {
+	// Template defines defaults for Pipeline Pod creation in Vela Workers.
+	Template PipelinePodTemplate `json:"template"`
+}
+
+// PipelinePodTemplate describes the data defaults to use when creating each pipeline pod.
+type PipelinePodTemplate struct {
+	// Meta contains a subset of the standard object metadata (see: metav1.ObjectMeta).
+	// +optional
+	Meta PipelinePodTemplateMeta `json:"metadata,omitempty"`
+
+	// Spec contains a subset of the pod configuration options (see: v1.PodSpec).
+	// +optional
+	Spec PipelinePodTemplateSpec `json:"spec,omitempty"`
+}
+
+// PipelinePodTemplateMeta is a subset of metav1.ObjectMeta with meta defaults for pipeline pods.
+type PipelinePodTemplateMeta struct {
 	// Labels is a key value map of strings to organize and categorize pods.
 	// More info: http://kubernetes.io/docs/user-guide/labels
 	// +optional
@@ -52,8 +52,8 @@ type PipelinePodMeta struct {
 	Annotations map[string]string `json:"annotations,omitempty"`
 }
 
-// PipelinePodSpec is a description of a PipelinePod defaults.
-type PipelinePodSpec struct {
+// PipelinePodTemplateSpec is (loosely) a subset of v1.PodSpec with spec defaults for pipeline pods.
+type PipelinePodTemplateSpec struct {
 	// NodeSelector is a selector which must be true for the pipeline pod to fit on a node.
 	// Selector which must match a node's labels for the pod to be scheduled on that node.
 	// More info: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
@@ -79,6 +79,7 @@ type PipelinePodSpec struct {
 	DNSConfig *v1.PodDNSConfig `json:"dnsConfig,omitempty"`
 
 	// Container defines a limited set of defaults to apply to each PipelinePod container.
+	// This is analogous to one entry in v1.PodSpec.Containers.
 	Container PipelineContainer `json:"container"`
 
 	// SecurityContext holds pod-level security attributes and common container settings.
@@ -98,7 +99,7 @@ type PipelineContainer struct {
 
 // PipelinePodSecurityContext holds pod-level security attributes and common container settings.
 type PipelinePodSecurityContext struct {
-	// Indicates that the container must run as a non-root user.
+	// RunAsNonRoot indicates that the container must run as a non-root user.
 	// If true, the Kubelet will validate the image at runtime to ensure that it
 	// does not run as UID 0 (root) and fail to start the container if it does.
 	// If unset or false, no such validation will be performed.
@@ -113,7 +114,7 @@ type PipelinePodSecurityContext struct {
 
 // PipelineContainerSecurityContext holds container-level security configuration.
 type PipelineContainerSecurityContext struct {
-	// The capabilities to add/drop when running containers.
+	// Capabilities contains the capabilities to add/drop when running containers.
 	// Defaults to the default set of capabilities granted by the container runtime.
 	// Note that this field cannot be set when spec.os.name is windows.
 	// +optional
