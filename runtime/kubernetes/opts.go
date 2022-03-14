@@ -80,3 +80,20 @@ func WithPrivilegedImages(images []string) ClientOpt {
 		return nil
 	}
 }
+
+// WithWorkerHostname sets the namespace in the runtime client for Kubernetes.
+func WithWorkerHostname(hostname string) ClientOpt {
+	return func(c *client) error {
+		c.Logger.Trace("configuring worker hostname in kubernetes runtime client (for pipeline pod labels)")
+
+		// check if the worker hostname provided is empty
+		if len(hostname) == 0 {
+			return fmt.Errorf("no worker hostname provided")
+		}
+
+		// set the worker hostname in the kubernetes client
+		c.config.WorkerHostname = hostname
+
+		return nil
+	}
+}

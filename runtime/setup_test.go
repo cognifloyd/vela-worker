@@ -26,9 +26,10 @@ func TestRuntime_Setup_Docker(t *testing.T) {
 func TestRuntime_Setup_Kubernetes(t *testing.T) {
 	// setup types
 	_setup := &Setup{
-		Driver:     constants.DriverKubernetes,
-		ConfigFile: "testdata/config",
-		Namespace:  "docker",
+		Driver:         constants.DriverKubernetes,
+		ConfigFile:     "testdata/config",
+		Namespace:      "docker",
+		WorkerHostname: "worker-host",
 	}
 
 	// run test

@@ -15,6 +15,8 @@ import (
 )
 
 type config struct {
+	// specifies the host used to register the worker with the server
+	WorkerHostname string
 	// specifies the config file to use for the Kubernetes client
 	File string
 	// specifies the namespace to use for the Kubernetes client

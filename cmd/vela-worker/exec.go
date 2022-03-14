@@ -57,6 +57,7 @@ func (w *Worker) exec(index int) error {
 		HostVolumes:      w.Config.Runtime.HostVolumes,
 		Namespace:        w.Config.Runtime.Namespace,
 		PrivilegedImages: w.Config.Runtime.PrivilegedImages,
+		WorkerHostname:   w.Config.API.Address.Hostname(),
 	})
 	if err != nil {
 		return err

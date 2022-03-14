@@ -24,6 +24,8 @@ type Setup struct {
 
 	// Runtime Configuration
 
+	// specifies the host used to register the worker with the server
+	WorkerHostname string
 	// specifies the driver to use for the runtime client
 	Driver string
 	// specifies the path to a configuration file to use for the runtime client
@@ -60,6 +62,7 @@ func (s *Setup) Kubernetes() (Engine, error) {
 	//
 	// https://pkg.go.dev/github.com/go-vela/worker/runtime/kubernetes?tab=doc#New
 	return kubernetes.New(
+		kubernetes.WithWorkerHostname(s.WorkerHostname),
 		kubernetes.WithConfigFile(s.ConfigFile),
 		kubernetes.WithHostVolumes(s.HostVolumes),
 		kubernetes.WithNamespace(s.Namespace),

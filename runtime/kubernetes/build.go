@@ -43,8 +43,14 @@ func (c *client) SetupBuild(ctx context.Context, b *pipeline.Build) error {
 	//
 	// https://pkg.go.dev/k8s.io/apimachinery/pkg/apis/meta/v1?tab=doc#ObjectMeta
 	c.Pod.ObjectMeta = metav1.ObjectMeta{
-		Name:   b.ID,
-		Labels: map[string]string{"pipeline": b.ID},
+		Name: b.ID,
+		// These labels will be used to call k8s watch APIs.
+		Labels: map[string]string{
+			"pipeline":        b.ID,
+			"worker":          c.config.WorkerHostname,
+			"worker-flavor":   b.Worker.Flavor,
+			"worker-platform": b.Worker.Platform,
+		},
 	}
 
 	// TODO: Vela admin defined worker-specific:
