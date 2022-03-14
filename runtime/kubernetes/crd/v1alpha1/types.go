@@ -9,6 +9,9 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+// +genclient
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
 // PipelinePod defines the config for a given worker.
 type PipelinePod struct {
 	metav1.TypeMeta `json:",inline"`
@@ -119,4 +122,17 @@ type PipelineContainerSecurityContext struct {
 	// Note that this field cannot be set when spec.os.name is windows.
 	// +optional
 	Capabilities *v1.Capabilities `json:"capabilities,omitempty"`
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+// PipelinePodList is a list of Deployments.
+type PipelinePodList struct {
+	metav1.TypeMeta `json:",inline"`
+	// Standard list metadata.
+	// +optional
+	metav1.ListMeta `json:"metadata,omitempty"`
+
+	// Items is the list of Deployments.
+	Items []PipelinePod `json:"items"`
 }
