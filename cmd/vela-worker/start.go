@@ -86,6 +86,10 @@ func (w *Worker) Start() error {
 		return err
 	})
 
+	// TODO runtime specific goroutine? kubernetes runtime recreates the Kubernetes client each time.
+	//      to be more like a k8s controller, we would need something that handles watching for relevant events
+	//      which each of the pipelines clients in turn would have to query to get the CRD and the event stream.
+
 	// spawn goroutine for starting the operator
 	g.Go(func() error {
 		logrus.Info("starting worker operator")

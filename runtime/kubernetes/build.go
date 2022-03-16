@@ -124,6 +124,11 @@ func (c *client) AssembleBuild(ctx context.Context, b *pipeline.Build) error {
 	// remnants get deleted.
 	c.createdPod = true
 
+	// TODO: create pipeline pod event watcher
+	// RunContainer (image error watch): c.Kubernetes.CoreV1().Events(c.config.Namespace).Watch(context.Background(), opts)
+	// WaitContainer: c.Kubernetes.CoreV1().Pods(c.config.Namespace).Watch(context.Background(), opts)
+	// TailContainer: c.Kubernetes.CoreV1().Pods(c.config.Namespace).GetLogs(c.Pod.ObjectMeta.Name, opts).Stream(context.Background())
+
 	c.Logger.Infof("creating pod %s", c.Pod.ObjectMeta.Name)
 	// send API call to create the pod
 	//
