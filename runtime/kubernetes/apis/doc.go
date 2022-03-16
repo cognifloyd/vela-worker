@@ -2,9 +2,9 @@
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
-// Package crd defines the worker-config CRD and related utilities.
+// Package apis defines the worker-config CRD and related utilities.
 //
 // Usage:
 //
-// 	import "github.com/go-vela/worker/runtime/kubernetes/crd"
-package crd
+// 	import "github.com/go-vela/worker/runtime/kubernetes/apis"
+package apis
