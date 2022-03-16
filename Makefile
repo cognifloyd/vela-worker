@@ -23,6 +23,18 @@ endif
 # create a list of linker flags for building the golang application
 LD_FLAGS = -X github.com/go-vela/worker/version.Commit=${GITHUB_SHA} -X github.com/go-vela/worker/version.Date=${BUILD_DATE} -X github.com/go-vela/worker/version.Tag=${GITHUB_TAG}
 
+# find the path to the CODEGEN_PKG (for the k8s crd make targets)
+ifndef CODEGEN_PKG
+	CODEGEN_PKG = vendor/k8s.io/code-generator
+	ifeq  "$(wildcard $(CODEGEN_PKG))" ""
+		CODEGEN_PKG = ../code_generator
+	endif
+	ifeq  "$(wildcard $(CODEGEN_PKG))" ""
+		CODEGEN_VERSION = $(shell go mod graph | grep 'github.com/go-vela/worker k8s.io/code-generator@' | sed 's/.*@//')
+		CODEGEN_PKG = $(shell go env GOMODCACHE)/k8s.io/code-generator@$(CODEGEN_VERSION)
+	endif
+endif
+
 # The `clean` target is intended to clean the workspace
 # and prepare the local changes for submission.
 #
@@ -311,3 +323,32 @@ spec-version-update:
 # Usage: `make spec`
 .PHONY: spec
 spec: spec-gen spec-version-update spec-validate
+
+# The `crd-gen` target is intended to create a k8s crd
+# for the kubernetes runtime using k8s.io/code-generator
+#
+# Usage: `make crd-gen`
+.PHONY: crd-gen
+crd-gen:
+	$(eval TMP := $(shell mktemp -d))
+	@echo
+	@echo "### Generating crd clientset using k8s.io/crd"
+	@echo Using k8s.io/code-generator in: ${CODEGEN_PKG}
+	@/usr/bin/env bash ${CODEGEN_PKG}/generate-groups.sh \
+		"deepcopy" \
+		github.com/go-vela/worker/runtime/kubernetes/client \
+		github.com/go-vela/worker/runtime/kubernetes/apis \
+		go-vela.github.io:v1alpha1 \
+		--output-base "${TMP}" \
+		--go-header-file runtime/kubernetes/.codegen-header.txt
+	@echo "### Copying generated files"
+	cp -r ${TMP}/github.com/go-vela/worker/runtime/kubernetes/* runtime/kubernetes/
+	rm -rf $(TMP)
+	@echo "### crd clientset created successfully"
+
+# The `crd` target will call crd-gen to create a k8s crd
+# for the kubernetes runtime.
+#
+# Usage: `make crd`
+.PHONY: crd
+spec: crd-gen

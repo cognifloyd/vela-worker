@@ -2,6 +2,8 @@ package v1alpha1
 
 import (
 	"github.com/go-vela/worker/runtime/kubernetes/apis/go-vela.github.io"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
@@ -18,19 +20,19 @@ func Resource(resource string) schema.GroupResource {
 	return SchemeGroupVersion.WithResource(resource).GroupResource()
 }
 
-//var (
-//	// SchemeBuilder initializes a scheme builder
-//	SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
-//	// AddToScheme is a global function that registers this API group & version to a scheme
-//	AddToScheme = SchemeBuilder.AddToScheme
-//)
+var (
+	// SchemeBuilder initializes a scheme builder
+	SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
+	// AddToScheme is a global function that registers this API group & version to a scheme
+	AddToScheme = SchemeBuilder.AddToScheme
+)
 
-// Adds the list of known types to Scheme.
-//func addKnownTypes(scheme *runtime.Scheme) error {
-//	scheme.AddKnownTypes(SchemeGroupVersion,
-//		&PipelinePod{},
-//		&PipelinePodList{},
-//	)
-//	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
-//	return nil
-//}
+//Adds the list of known types to Scheme.
+func addKnownTypes(scheme *runtime.Scheme) error {
+	scheme.AddKnownTypes(SchemeGroupVersion,
+		&PipelinePod{},
+		&PipelinePodList{},
+	)
+	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
+	return nil
+}
