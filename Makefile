@@ -341,6 +341,14 @@ crd-gen:
 		vela:v1alpha1 \
 		--output-base "${TMP}" \
 		--go-header-file runtime/kubernetes/.codegen-header.txt
+	@/usr/bin/env bash ${CODEGEN_PKG}/generate-groups.sh \
+		"informer" \
+		github.com/go-vela/worker/runtime/kubernetes/generated \
+		github.com/go-vela/worker/runtime/kubernetes/apis \
+		vela:v1alpha1 \
+		--output-base "${TMP}" \
+		--go-header-file runtime/kubernetes/.codegen-header.txt \
+		--single-directory
 	@echo "### Copying generated files"
 	rm -rf runtime/kubernetes/generated
 	cp -r ${TMP}/github.com/go-vela/worker/runtime/kubernetes/* runtime/kubernetes/
