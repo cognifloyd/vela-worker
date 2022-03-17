@@ -122,12 +122,13 @@ func (c *client) SetupContainer(ctx context.Context, ctn *pipeline.Container) er
 		// the containers with the proper image.
 		//
 		// https://hub.docker.com/r/kubernetes/pause
-		Image:      image.Parse("kubernetes/pause:latest"),
-		Env:        []v1.EnvVar{},
-		Stdin:      false,
-		StdinOnce:  false,
-		TTY:        false,
-		WorkingDir: ctn.Directory,
+		Image:           image.Parse("kubernetes/pause:latest"),
+		Env:             []v1.EnvVar{},
+		Stdin:           false,
+		StdinOnce:       false,
+		TTY:             false,
+		WorkingDir:      ctn.Directory,
+		SecurityContext: &v1.SecurityContext{},
 	}
 
 	// handle the container pull policy (This cannot be updated like the image can)
@@ -172,7 +173,13 @@ func (c *client) SetupContainer(ctx context.Context, ctn *pipeline.Container) er
 		}
 	}
 
-	// TODO: add SecurityContext options (runAsUser, runAsNonRoot, sysctls)
+	if c.podTemplate != nil && c.podTemplate.Spec.Container != nil {
+		securityContext := c.podTemplate.Spec.Container.SecurityContext
+		if securityContext != nil && securityContext.Capabilities != nil {
+			container.SecurityContext.Capabilities = securityContext.Capabilities
+		}
+		// TODO: add SecurityContext options (runAsUser, runAsNonRoot, sysctls)
+	}
 
 	// Executor.CreateBuild extends the environment AFTER calling Runtime.SetupBuild.
 	// So, configure the environment as late as possible (just before pod creation).

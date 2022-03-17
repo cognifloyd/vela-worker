@@ -74,7 +74,7 @@ type PipelinePodTemplateSpec struct {
 	// Defaults to "ClusterFirst".
 	// Valid values are 'ClusterFirstWithHostNet', 'ClusterFirst', 'Default' or 'None'.
 	// +optional
-	DNSPolicy v1.DNSPolicy `json:"dnsPolicy,omitempty"`
+	DNSPolicy *v1.DNSPolicy `json:"dnsPolicy,omitempty"`
 	// DNSConfig specifies the DNS parameters of a pod.
 	// Parameters specified here will be merged to the generated DNS
 	// configuration based on DNSPolicy.
@@ -83,7 +83,8 @@ type PipelinePodTemplateSpec struct {
 
 	// Container defines a limited set of defaults to apply to each PipelinePodsTemplate container.
 	// This is analogous to one entry in v1.PodSpec.Containers.
-	Container PipelineContainer `json:"container"`
+	// +optional
+	Container *PipelineContainer `json:"container,omitempty"`
 
 	// SecurityContext holds pod-level security attributes and common container settings.
 	// Optional: Defaults to empty.  See type description for default values of each field.

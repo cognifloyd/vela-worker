@@ -152,12 +152,21 @@ func (in *PipelinePodTemplateSpec) DeepCopyInto(out *PipelinePodTemplateSpec) {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+	if in.DNSPolicy != nil {
+		in, out := &in.DNSPolicy, &out.DNSPolicy
+		*out = new(v1.DNSPolicy)
+		**out = **in
+	}
 	if in.DNSConfig != nil {
 		in, out := &in.DNSConfig, &out.DNSConfig
 		*out = new(v1.PodDNSConfig)
 		(*in).DeepCopyInto(*out)
 	}
-	in.Container.DeepCopyInto(&out.Container)
+	if in.Container != nil {
+		in, out := &in.Container, &out.Container
+		*out = new(PipelineContainer)
+		(*in).DeepCopyInto(*out)
+	}
 	if in.SecurityContext != nil {
 		in, out := &in.SecurityContext, &out.SecurityContext
 		*out = new(PipelinePodSecurityContext)

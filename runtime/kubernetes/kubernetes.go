@@ -12,6 +12,9 @@ import (
 	"k8s.io/client-go/kubernetes/fake"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
+
+	velav1alpha1 "github.com/go-vela/worker/runtime/kubernetes/apis/vela/v1alpha1"
+	velaK8sClient "github.com/go-vela/worker/runtime/kubernetes/generated/clientset/versioned"
 )
 
 type config struct {
@@ -33,10 +36,14 @@ type client struct {
 	config *config
 	// https://pkg.go.dev/k8s.io/client-go/kubernetes#Interface
 	Kubernetes kubernetes.Interface
+	// VelaKubernetes is a client for custom Vela CRD-based APIs
+	VelaKubernetes velaK8sClient.Interface
 	// https://pkg.go.dev/github.com/sirupsen/logrus#Entry
 	Logger *logrus.Entry
 	// https://pkg.go.dev/k8s.io/api/core/v1#Pod
 	Pod *v1.Pod
+	// podTemplate has default values to be used in Setup* methods
+	podTemplate *velav1alpha1.PipelinePodTemplate
 	// commonVolumeMounts includes workspace mount and any global host mounts (VELA_RUNTIME_VOLUMES)
 	commonVolumeMounts []v1.VolumeMount
 	// indicates when the pod has been created in kubernetes
