@@ -16,8 +16,8 @@ type FakeVelaV1alpha1 struct {
 	*testing.Fake
 }
 
-func (c *FakeVelaV1alpha1) PipelinePods(namespace string) v1alpha1.PipelinePodInterface {
-	return &FakePipelinePods{c, namespace}
+func (c *FakeVelaV1alpha1) PipelinePodsTemplates(namespace string) v1alpha1.PipelinePodsTemplateInterface {
+	return &FakePipelinePodsTemplates{c, namespace}
 }
 
 // RESTClient returns a RESTClient that is used to communicate

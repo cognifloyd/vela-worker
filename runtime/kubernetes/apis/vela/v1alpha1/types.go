@@ -12,21 +12,21 @@ import (
 // +genclient
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// PipelinePod defines the config for a given worker.
-type PipelinePod struct {
+// PipelinePodsTemplate defines the config for a given worker.
+type PipelinePodsTemplate struct {
 	metav1.TypeMeta `json:",inline"`
 	// Standard object's metadata.
 	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
 	// +optional
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	// Spec defines the PipelinePod configuration for Vela Workers.
+	// Spec defines the PipelinePodsTemplate configuration for Vela Workers.
 	// +optional
-	Spec PipelinePodSpec `json:"spec,omitempty"`
+	Spec PipelinePodsTemplateSpec `json:"spec,omitempty"`
 }
 
-// PipelinePodSpec configures creation of Pipeline Pods by Vela Workers.
-type PipelinePodSpec struct {
+// PipelinePodsTemplateSpec configures creation of Pipeline Pods by Vela Workers.
+type PipelinePodsTemplateSpec struct {
 	// Template defines defaults for Pipeline Pod creation in Vela Workers.
 	Template PipelinePodTemplate `json:"template"`
 }
@@ -81,7 +81,7 @@ type PipelinePodTemplateSpec struct {
 	// +optional
 	DNSConfig *v1.PodDNSConfig `json:"dnsConfig,omitempty"`
 
-	// Container defines a limited set of defaults to apply to each PipelinePod container.
+	// Container defines a limited set of defaults to apply to each PipelinePodsTemplate container.
 	// This is analogous to one entry in v1.PodSpec.Containers.
 	Container PipelineContainer `json:"container"`
 
@@ -91,7 +91,7 @@ type PipelinePodTemplateSpec struct {
 	SecurityContext *PipelinePodSecurityContext `json:"securityContext,omitempty"`
 }
 
-// PipelineContainer has defaults for containers in a PipelinePod.
+// PipelineContainer has defaults for containers in a PipelinePodsTemplate.
 type PipelineContainer struct {
 	// SecurityContext defines the security options the container should be run with.
 	// If set, the fields of SecurityContext override the equivalent fields of PodSecurityContext.
@@ -126,13 +126,13 @@ type PipelineContainerSecurityContext struct {
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// PipelinePodList is a list of Deployments.
-type PipelinePodList struct {
+// PipelinePodsTemplateList is a list of Deployments.
+type PipelinePodsTemplateList struct {
 	metav1.TypeMeta `json:",inline"`
 	// Standard list metadata.
 	// +optional
 	metav1.ListMeta `json:"metadata,omitempty"`
 
 	// Items is the list of Deployments.
-	Items []PipelinePod `json:"items"`
+	Items []PipelinePodsTemplate `json:"items"`
 }

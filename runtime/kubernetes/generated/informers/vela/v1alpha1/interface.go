@@ -12,8 +12,8 @@ import (
 
 // Interface provides access to all the informers in this group version.
 type Interface interface {
-	// PipelinePods returns a PipelinePodInformer.
-	PipelinePods() PipelinePodInformer
+	// PipelinePodsTemplates returns a PipelinePodsTemplateInformer.
+	PipelinePodsTemplates() PipelinePodsTemplateInformer
 }
 
 type version struct {
@@ -27,7 +27,7 @@ func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakList
 	return &version{factory: f, namespace: namespace, tweakListOptions: tweakListOptions}
 }
 
-// PipelinePods returns a PipelinePodInformer.
-func (v *version) PipelinePods() PipelinePodInformer {
-	return &pipelinePodInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+// PipelinePodsTemplates returns a PipelinePodsTemplateInformer.
+func (v *version) PipelinePodsTemplates() PipelinePodsTemplateInformer {
+	return &pipelinePodsTemplateInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }

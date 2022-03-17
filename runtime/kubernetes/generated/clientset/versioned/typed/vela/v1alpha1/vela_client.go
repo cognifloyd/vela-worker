@@ -16,7 +16,7 @@ import (
 
 type VelaV1alpha1Interface interface {
 	RESTClient() rest.Interface
-	PipelinePodsGetter
+	PipelinePodsTemplatesGetter
 }
 
 // VelaV1alpha1Client is used to interact with features provided by the go-vela.github.io group.
@@ -24,8 +24,8 @@ type VelaV1alpha1Client struct {
 	restClient rest.Interface
 }
 
-func (c *VelaV1alpha1Client) PipelinePods(namespace string) PipelinePodInterface {
-	return newPipelinePods(c, namespace)
+func (c *VelaV1alpha1Client) PipelinePodsTemplates(namespace string) PipelinePodsTemplateInterface {
+	return newPipelinePodsTemplates(c, namespace)
 }
 
 // NewForConfig creates a new VelaV1alpha1Client for the given config.

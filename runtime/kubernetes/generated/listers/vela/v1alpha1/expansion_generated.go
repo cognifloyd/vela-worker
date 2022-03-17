@@ -6,10 +6,10 @@
 
 package v1alpha1
 
-// PipelinePodListerExpansion allows custom methods to be added to
-// PipelinePodLister.
-type PipelinePodListerExpansion interface{}
+// PipelinePodsTemplateListerExpansion allows custom methods to be added to
+// PipelinePodsTemplateLister.
+type PipelinePodsTemplateListerExpansion interface{}
 
-// PipelinePodNamespaceListerExpansion allows custom methods to be added to
-// PipelinePodNamespaceLister.
-type PipelinePodNamespaceListerExpansion interface{}
+// PipelinePodsTemplateNamespaceListerExpansion allows custom methods to be added to
+// PipelinePodsTemplateNamespaceLister.
+type PipelinePodsTemplateNamespaceListerExpansion interface{}

@@ -41,8 +41,8 @@ func (f *genericInformer) Lister() cache.GenericLister {
 func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource) (GenericInformer, error) {
 	switch resource {
 	// Group=go-vela.github.io, Version=v1alpha1
-	case v1alpha1.SchemeGroupVersion.WithResource("pipelinepods"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Vela().V1alpha1().PipelinePods().Informer()}, nil
+	case v1alpha1.SchemeGroupVersion.WithResource("pipelinepodstemplates"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Vela().V1alpha1().PipelinePodsTemplates().Informer()}, nil
 
 	}
 

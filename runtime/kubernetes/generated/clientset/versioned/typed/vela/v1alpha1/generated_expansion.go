@@ -6,4 +6,4 @@
 
 package v1alpha1
 
-type PipelinePodExpansion interface{}
+type PipelinePodsTemplateExpansion interface{}
