@@ -335,8 +335,8 @@ crd-gen:
 	@echo "### Generating crd clientset using k8s.io/crd"
 	@echo Using k8s.io/code-generator in: ${CODEGEN_PKG}
 	@/usr/bin/env bash ${CODEGEN_PKG}/generate-groups.sh \
-		"deepcopy" \
-		github.com/go-vela/worker/runtime/kubernetes/client \
+		"deepcopy,client" \
+		github.com/go-vela/worker/runtime/kubernetes/generated \
 		github.com/go-vela/worker/runtime/kubernetes/apis \
 		go-vela.github.io:v1alpha1 \
 		--output-base "${TMP}" \

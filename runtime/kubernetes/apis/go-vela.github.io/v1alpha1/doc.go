@@ -5,6 +5,7 @@
 // +k8s:deepcopy-gen=package
 // +k8s:openapi-gen=true
 // +groupName=go-vela.github.io
+// +groupGoName=Vela
 
 // Package v1alpha1 defines version 1alpha1 of the worker-config CRD.
 //
