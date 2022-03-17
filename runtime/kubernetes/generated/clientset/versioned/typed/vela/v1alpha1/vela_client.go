@@ -9,7 +9,7 @@ package v1alpha1
 import (
 	"net/http"
 
-	v1alpha1 "github.com/go-vela/worker/runtime/kubernetes/apis/go-vela.github.io/v1alpha1"
+	v1alpha1 "github.com/go-vela/worker/runtime/kubernetes/apis/vela/v1alpha1"
 	"github.com/go-vela/worker/runtime/kubernetes/generated/clientset/versioned/scheme"
 	rest "k8s.io/client-go/rest"
 )

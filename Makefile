@@ -338,10 +338,11 @@ crd-gen:
 		"deepcopy,client" \
 		github.com/go-vela/worker/runtime/kubernetes/generated \
 		github.com/go-vela/worker/runtime/kubernetes/apis \
-		go-vela.github.io:v1alpha1 \
+		vela:v1alpha1 \
 		--output-base "${TMP}" \
 		--go-header-file runtime/kubernetes/.codegen-header.txt
 	@echo "### Copying generated files"
+	rm -rf runtime/kubernetes/generated
 	cp -r ${TMP}/github.com/go-vela/worker/runtime/kubernetes/* runtime/kubernetes/
 	rm -rf $(TMP)
 	@echo "### crd clientset created successfully"

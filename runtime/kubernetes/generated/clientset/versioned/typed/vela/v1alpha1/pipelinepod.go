@@ -10,7 +10,7 @@ import (
 	"context"
 	"time"
 
-	v1alpha1 "github.com/go-vela/worker/runtime/kubernetes/apis/go-vela.github.io/v1alpha1"
+	v1alpha1 "github.com/go-vela/worker/runtime/kubernetes/apis/vela/v1alpha1"
 	scheme "github.com/go-vela/worker/runtime/kubernetes/generated/clientset/versioned/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"

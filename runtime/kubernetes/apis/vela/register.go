@@ -1,4 +1,4 @@
-package go_vela_github_io
+package vela
 
 // GroupName is the group name used in this package
 const (

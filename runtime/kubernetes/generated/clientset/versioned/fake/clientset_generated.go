@@ -8,8 +8,8 @@ package fake
 
 import (
 	clientset "github.com/go-vela/worker/runtime/kubernetes/generated/clientset/versioned"
-	velav1alpha1 "github.com/go-vela/worker/runtime/kubernetes/generated/clientset/versioned/typed/go-vela.github.io/v1alpha1"
-	fakevelav1alpha1 "github.com/go-vela/worker/runtime/kubernetes/generated/clientset/versioned/typed/go-vela.github.io/v1alpha1/fake"
+	velav1alpha1 "github.com/go-vela/worker/runtime/kubernetes/generated/clientset/versioned/typed/vela/v1alpha1"
+	fakevelav1alpha1 "github.com/go-vela/worker/runtime/kubernetes/generated/clientset/versioned/typed/vela/v1alpha1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
