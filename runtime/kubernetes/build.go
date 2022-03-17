@@ -39,16 +39,17 @@ func (c *client) InspectBuild(ctx context.Context, b *pipeline.Build) ([]byte, e
 func (c *client) SetupBuild(ctx context.Context, b *pipeline.Build) error {
 	c.Logger.Tracef("setting up for build %s", b.ID)
 
-	// TODO: name from c.config and options. Allow a filename instead to load from filesystem.
-	podsTemplateResponse, err := c.VelaKubernetes.VelaV1alpha1().PipelinePodsTemplates(c.config.Namespace).Get(
-		context.Background(), "asdf", metav1.GetOptions{},
-	)
-	if err != nil {
-		return err
-	}
+	if c.PipelinePodTemplate == nil && len(c.config.PipelinePodsTemplateName) > 0 {
+		podsTemplateResponse, err := c.VelaKubernetes.VelaV1alpha1().PipelinePodsTemplates(c.config.Namespace).Get(
+			context.Background(), c.config.PipelinePodsTemplateName, metav1.GetOptions{},
+		)
+		if err != nil {
+			return err
+		}
 
-	// save the podTemplate to use later in SetupContainer and other Setup methods
-	c.podTemplate = &podsTemplateResponse.Spec.Template
+		// save the PipelinePodTemplate to use later in SetupContainer and other Setup methods
+		c.PipelinePodTemplate = &podsTemplateResponse.Spec.Template
+	}
 
 	// These labels will be used to call k8s watch APIs.
 	labels := map[string]string{
@@ -58,9 +59,9 @@ func (c *client) SetupBuild(ctx context.Context, b *pipeline.Build) error {
 		"worker-platform": b.Worker.Platform,
 	}
 
-	if c.podTemplate.Meta.Labels != nil {
+	if c.PipelinePodTemplate.Meta.Labels != nil {
 		// merge the template labels into the worker-defined labels.
-		for k, v := range c.podTemplate.Meta.Labels {
+		for k, v := range c.PipelinePodTemplate.Meta.Labels {
 			// do not allow overwriting any of the worker-defined labels.
 			if _, ok := labels[k]; ok {
 				continue
@@ -75,19 +76,19 @@ func (c *client) SetupBuild(ctx context.Context, b *pipeline.Build) error {
 	c.Pod.ObjectMeta = metav1.ObjectMeta{
 		Name:        b.ID,
 		Labels:      labels,
-		Annotations: c.podTemplate.Meta.Annotations,
+		Annotations: c.PipelinePodTemplate.Meta.Annotations,
 	}
 
 	// TODO: Vela admin defined worker-specific: AutomountServiceAccountToken
 
-	if c.podTemplate.Spec.NodeSelector != nil {
-		c.Pod.Spec.NodeSelector = c.podTemplate.Spec.NodeSelector
+	if c.PipelinePodTemplate.Spec.NodeSelector != nil {
+		c.Pod.Spec.NodeSelector = c.PipelinePodTemplate.Spec.NodeSelector
 	}
-	if c.podTemplate.Spec.Tolerations != nil {
-		c.Pod.Spec.Tolerations = c.podTemplate.Spec.Tolerations
+	if c.PipelinePodTemplate.Spec.Tolerations != nil {
+		c.Pod.Spec.Tolerations = c.PipelinePodTemplate.Spec.Tolerations
 	}
-	if c.podTemplate.Spec.Affinity != nil {
-		c.Pod.Spec.Affinity = c.podTemplate.Spec.Affinity
+	if c.PipelinePodTemplate.Spec.Affinity != nil {
+		c.Pod.Spec.Affinity = c.PipelinePodTemplate.Spec.Affinity
 	}
 
 	// create the restart policy for the pod
@@ -95,22 +96,22 @@ func (c *client) SetupBuild(ctx context.Context, b *pipeline.Build) error {
 	// https://pkg.go.dev/k8s.io/api/core/v1?tab=doc#RestartPolicy
 	c.Pod.Spec.RestartPolicy = v1.RestartPolicyNever
 
-	if c.podTemplate.Spec.DNSPolicy != nil {
-		c.Pod.Spec.DNSPolicy = *c.podTemplate.Spec.DNSPolicy
+	if c.PipelinePodTemplate.Spec.DNSPolicy != nil {
+		c.Pod.Spec.DNSPolicy = *c.PipelinePodTemplate.Spec.DNSPolicy
 	}
-	if c.podTemplate.Spec.DNSConfig != nil {
-		c.Pod.Spec.DNSConfig = c.podTemplate.Spec.DNSConfig
+	if c.PipelinePodTemplate.Spec.DNSConfig != nil {
+		c.Pod.Spec.DNSConfig = c.PipelinePodTemplate.Spec.DNSConfig
 	}
 
-	if c.podTemplate.Spec.SecurityContext != nil {
+	if c.PipelinePodTemplate.Spec.SecurityContext != nil {
 		if c.Pod.Spec.SecurityContext == nil {
 			c.Pod.Spec.SecurityContext = &v1.PodSecurityContext{}
 		}
-		if c.podTemplate.Spec.SecurityContext.RunAsNonRoot != nil {
-			c.Pod.Spec.SecurityContext.RunAsNonRoot = c.podTemplate.Spec.SecurityContext.RunAsNonRoot
+		if c.PipelinePodTemplate.Spec.SecurityContext.RunAsNonRoot != nil {
+			c.Pod.Spec.SecurityContext.RunAsNonRoot = c.PipelinePodTemplate.Spec.SecurityContext.RunAsNonRoot
 		}
-		if c.podTemplate.Spec.SecurityContext.Sysctls != nil {
-			c.Pod.Spec.SecurityContext.Sysctls = c.podTemplate.Spec.SecurityContext.Sysctls
+		if c.PipelinePodTemplate.Spec.SecurityContext.Sysctls != nil {
+			c.Pod.Spec.SecurityContext.Sysctls = c.PipelinePodTemplate.Spec.SecurityContext.Sysctls
 		}
 	}
 

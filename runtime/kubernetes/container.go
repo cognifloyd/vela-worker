@@ -173,8 +173,8 @@ func (c *client) SetupContainer(ctx context.Context, ctn *pipeline.Container) er
 		}
 	}
 
-	if c.podTemplate != nil && c.podTemplate.Spec.Container != nil {
-		securityContext := c.podTemplate.Spec.Container.SecurityContext
+	if c.PipelinePodTemplate != nil && c.PipelinePodTemplate.Spec.Container != nil {
+		securityContext := c.PipelinePodTemplate.Spec.Container.SecurityContext
 		if securityContext != nil && securityContext.Capabilities != nil {
 			container.SecurityContext.Capabilities = securityContext.Capabilities
 		}

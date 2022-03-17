@@ -28,8 +28,8 @@ type config struct {
 	Images []string
 	// specifies a list of host volumes to use for the Kubernetes client
 	Volumes []string
-	// specifies a Pod config object (from a CRD) that defines Pod-creation defaults
-	//PodDefaults
+	// PipelinePodsTemplateName has the name of the PipelinePodTemplate to retrieve from the Namespace
+	PipelinePodsTemplateName string
 }
 
 type client struct {
@@ -42,8 +42,8 @@ type client struct {
 	Logger *logrus.Entry
 	// https://pkg.go.dev/k8s.io/api/core/v1#Pod
 	Pod *v1.Pod
-	// podTemplate has default values to be used in Setup* methods
-	podTemplate *velav1alpha1.PipelinePodTemplate
+	// PipelinePodTemplate has default values to be used in Setup* methods
+	PipelinePodTemplate *velav1alpha1.PipelinePodTemplate
 	// commonVolumeMounts includes workspace mount and any global host mounts (VELA_RUNTIME_VOLUMES)
 	commonVolumeMounts []v1.VolumeMount
 	// indicates when the pod has been created in kubernetes
@@ -114,6 +114,15 @@ func New(opts ...ClientOpt) (*client, error) {
 
 	// set the Kubernetes client in the runtime client
 	c.Kubernetes = _kubernetes
+
+	// creates VelaKubernetes client from configuration
+	_velaKubernetes, err := velaK8sClient.NewForConfig(config)
+	if err != nil {
+		return nil, err
+	}
+
+	// set the VelaKubernetes client in the runtime client
+	c.VelaKubernetes = _velaKubernetes
 
 	return c, nil
 }

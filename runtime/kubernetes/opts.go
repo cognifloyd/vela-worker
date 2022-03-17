@@ -6,8 +6,12 @@ package kubernetes
 
 import (
 	"fmt"
+	"io/ioutil"
 
+	"github.com/buildkite/yaml"
 	"github.com/sirupsen/logrus"
+
+	velav1alpha1 "github.com/go-vela/worker/runtime/kubernetes/apis/vela/v1alpha1"
 )
 
 // ClientOpt represents a configuration option to initialize the runtime client for Kubernetes.
@@ -69,6 +73,40 @@ func WithNamespace(namespace string) ClientOpt {
 	}
 }
 
+// WithPodsTemplate sets the PipelinePodsTemplateName or loads the PipelinePodsTemplate
+// from file in the runtime client for Kubernetes.
+func WithPodsTemplate(name string, path string) ClientOpt {
+	return func(c *client) error {
+		c.Logger.Trace("configuring pipeline pods template in kubernetes runtime client")
+
+		// check if a PipelinePodsTemplate was requested
+		if len(name) == 0 && len(path) == 0 {
+			// no PipelinePodTemplate to load
+			return nil
+		}
+
+		if len(name) == 0 {
+			// load the PodsTemplate from the path (must restart Worker to reload the local file)
+			if data, err := ioutil.ReadFile(path); err == nil {
+				pipelinePodsTemplate := velav1alpha1.PipelinePodsTemplate{}
+
+				err := yaml.Unmarshal(data, pipelinePodsTemplate)
+				if err != nil {
+					return err
+				}
+
+				c.PipelinePodTemplate = &pipelinePodsTemplate.Spec.Template
+			}
+			return nil
+		}
+
+		// set the runtime namespace in the kubernetes client for just-in-time retrieval
+		c.config.PipelinePodsTemplateName = name
+
+		return nil
+	}
+}
+
 // WithPrivilegedImages sets the privileged images in the runtime client for Kubernetes.
 func WithPrivilegedImages(images []string) ClientOpt {
 	return func(c *client) error {
@@ -81,7 +119,7 @@ func WithPrivilegedImages(images []string) ClientOpt {
 	}
 }
 
-// WithWorkerHostname sets the namespace in the runtime client for Kubernetes.
+// WithWorkerHostname sets the worker hostname in the runtime client for Kubernetes.
 func WithWorkerHostname(hostname string) ClientOpt {
 	return func(c *client) error {
 		c.Logger.Trace("configuring worker hostname in kubernetes runtime client (for pipeline pod labels)")
