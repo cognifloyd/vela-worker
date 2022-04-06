@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -8,10 +8,10 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/go-vela/pkg-executor/executor"
-	"github.com/go-vela/pkg-queue/queue"
-	"github.com/go-vela/pkg-runtime/runtime"
 	"github.com/go-vela/sdk-go/vela"
+	"github.com/go-vela/server/queue"
+	"github.com/go-vela/worker/executor"
+	"github.com/go-vela/worker/runtime"
 )
 
 type (

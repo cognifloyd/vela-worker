@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -47,6 +47,7 @@ func (w *Worker) server() (http.Handler, bool) {
 			if err != nil {
 				logrus.Fatalf("expecting certificate file at %s, got %v", w.Config.Certificate.Cert, err)
 			}
+
 			_, err = os.Stat(w.Config.Certificate.Key)
 			if err != nil {
 				logrus.Fatalf("expecting certificate key at %s, got %v", w.Config.Certificate.Key, err)
@@ -54,6 +55,7 @@ func (w *Worker) server() (http.Handler, bool) {
 		} else {
 			logrus.Fatal("unable to run with TLS: No certificate provided")
 		}
+
 		return _server, true
 	}
 

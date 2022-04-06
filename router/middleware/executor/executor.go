@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -11,8 +11,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/go-vela/pkg-executor/executor"
 	"github.com/go-vela/types"
+	"github.com/go-vela/worker/executor"
 
 	"github.com/sirupsen/logrus"
 )
@@ -64,6 +64,7 @@ func Establish() gin.HandlerFunc {
 		}
 
 		logrus.Debugf("Reading executor %s", param)
+
 		e, ok := executors[number]
 		if !ok {
 			msg := fmt.Sprintf("unable to get executor %s", param)

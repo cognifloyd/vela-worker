@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -8,8 +8,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/go-vela/pkg-executor/executor"
-	"github.com/go-vela/pkg-runtime/runtime"
+	"github.com/go-vela/worker/executor"
+	"github.com/go-vela/worker/runtime"
 	"github.com/go-vela/worker/version"
 
 	"github.com/sirupsen/logrus"
@@ -17,21 +17,12 @@ import (
 
 // exec is a helper function to poll the queue
 // and execute Vela pipelines for the Worker.
-//
-// nolint:funlen // ignore function length due to comments and log messages
+// nolint: nilerr // ignore returning nil - don't want to crash worker
 func (w *Worker) exec(index int) error {
 	var err error
 
 	// setup the version
 	v := version.New()
-
-	// setup the runtime
-	//
-	// https://pkg.go.dev/github.com/go-vela/pkg-runtime/runtime?tab=doc#New
-	w.Runtime, err = runtime.New(w.Config.Runtime)
-	if err != nil {
-		return err
-	}
 
 	// capture an item from the queue
 	item, err := w.Queue.Pop(context.Background())
@@ -43,33 +34,54 @@ func (w *Worker) exec(index int) error {
 		return nil
 	}
 
-	// setup the executor
-	//
-	// https://godoc.org/github.com/go-vela/pkg-executor/executor#New
-	_executor, err := executor.New(&executor.Setup{
-		Driver:   w.Config.Executor.Driver,
-		Client:   w.VelaClient,
-		Hostname: w.Config.API.Address.Hostname(),
-		Runtime:  w.Runtime,
-		Build:    item.Build,
-		Pipeline: item.Pipeline.Sanitize(w.Config.Runtime.Driver),
-		Repo:     item.Repo,
-		User:     item.User,
-		Version:  v.Semantic(),
-	})
-
-	// add the executor to the worker
-	w.Executors[index] = _executor
-
 	// create logger with extra metadata
 	//
 	// https://pkg.go.dev/github.com/sirupsen/logrus?tab=doc#WithFields
 	logger := logrus.WithFields(logrus.Fields{
-		"build":   item.Build.GetNumber(),
-		"host":    w.Config.API.Address.Hostname(),
-		"repo":    item.Repo.GetFullName(),
-		"version": v.Semantic(),
+		"build":    item.Build.GetNumber(),
+		"executor": w.Config.Executor.Driver,
+		"host":     w.Config.API.Address.Hostname(),
+		"repo":     item.Repo.GetFullName(),
+		"runtime":  w.Config.Runtime.Driver,
+		"user":     item.User.GetName(),
+		"version":  v.Semantic(),
 	})
+
+	// setup the runtime
+	//
+	// https://pkg.go.dev/github.com/go-vela/worker/runtime?tab=doc#New
+	w.Runtime, err = runtime.New(&runtime.Setup{
+		Logger:           logger,
+		Driver:           w.Config.Runtime.Driver,
+		ConfigFile:       w.Config.Runtime.ConfigFile,
+		HostVolumes:      w.Config.Runtime.HostVolumes,
+		Namespace:        w.Config.Runtime.Namespace,
+		PrivilegedImages: w.Config.Runtime.PrivilegedImages,
+	})
+	if err != nil {
+		return err
+	}
+
+	// setup the executor
+	//
+	// https://godoc.org/github.com/go-vela/worker/executor#New
+	_executor, err := executor.New(&executor.Setup{
+		Logger:     logger,
+		Driver:     w.Config.Executor.Driver,
+		LogMethod:  w.Config.Executor.LogMethod,
+		MaxLogSize: w.Config.Executor.MaxLogSize,
+		Client:     w.VelaClient,
+		Hostname:   w.Config.API.Address.Hostname(),
+		Runtime:    w.Runtime,
+		Build:      item.Build,
+		Pipeline:   item.Pipeline.Sanitize(w.Config.Runtime.Driver),
+		Repo:       item.Repo,
+		User:       item.User,
+		Version:    v.Semantic(),
+	})
+
+	// add the executor to the worker
+	w.Executors[index] = _executor
 
 	// capture the configured build timeout
 	t := w.Config.Build.Timeout

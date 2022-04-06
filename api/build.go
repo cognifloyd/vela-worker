@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -19,20 +19,16 @@ import (
 // Get the currently running build
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
-// - in: header
-//   name: Authorization
-//   description: Vela server token
-//   required: true
-//   type: string
 // - in: path
 //   name: executor
 //   description: The executor running the build
 //   required: true
 //   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully retrieved the build
@@ -66,20 +62,16 @@ func GetBuild(c *gin.Context) {
 // Cancel the currently running build
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
-// - in: header
-//   name: Authorization
-//   description: Vela server token
-//   required: true
-//   type: string
 // - in: path
 //   name: executor
 //   description: The executor running the build
 //   required: true
 //   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully canceled the build

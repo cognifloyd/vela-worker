@@ -11,10 +11,10 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     container:
-      image: golang:1.16
+      image: golang:1.17
     steps:
     - name: clone
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: validate
       run: |
@@ -26,3 +26,8 @@ jobs:
         go fmt ./... && git diff --exit-code; code=$?; git checkout -- .; (exit $code)
         # Check that go fix ./... produces a zero diff; clean up any changes afterwards.
         go fix ./... && git diff --exit-code; code=$?; git checkout -- .; (exit $code)
+
+    - name: validate spec
+      run: |
+        make spec-install
+        make spec

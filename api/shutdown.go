@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -15,15 +15,10 @@ import (
 // Perform a soft shutdown of the worker
 //
 // ---
-// x-success_http_code: '501'
 // produces:
 // - application/json
-// parameters:
-// - in: header
-//   name: Authorization
-//   description: Vela server token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '501':
 //     description: Endpoint is not yet implemented

@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -10,9 +10,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/go-vela/pkg-executor/executor"
 	"github.com/go-vela/types"
 	"github.com/go-vela/types/library"
+	"github.com/go-vela/worker/executor"
 	exec "github.com/go-vela/worker/router/middleware/executor"
 )
 
@@ -21,20 +21,16 @@ import (
 // Get a currently running executor
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
 // parameters:
-// - in: header
-//   name: Authorization
-//   description: Vela server token
-//   required: true
-//   type: string
 // - in: path
 //   name: executor
 //   description: The executor to retrieve
 //   required: true
 //   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully retrieved the executor
@@ -96,15 +92,10 @@ func GetExecutor(c *gin.Context) {
 // Get all currently running executors
 //
 // ---
-// x-success_http_code: '200'
 // produces:
 // - application/json
-// parameters:
-// - in: header
-//   name: Authorization
-//   description: Vela server token
-//   required: true
-//   type: string
+// security:
+//   - ApiKeyAuth: []
 // responses:
 //   '200':
 //     description: Successfully retrieved all running executors

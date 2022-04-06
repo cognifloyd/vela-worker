@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -12,12 +12,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/go-vela/pkg-executor/executor"
-	"github.com/go-vela/pkg-runtime/runtime/docker"
 	"github.com/go-vela/sdk-go/vela"
 	"github.com/go-vela/types/constants"
 	"github.com/go-vela/types/library"
 	"github.com/go-vela/types/pipeline"
+	"github.com/go-vela/worker/executor"
+	"github.com/go-vela/worker/runtime/docker"
 )
 
 func TestExecutor_Retrieve(t *testing.T) {
@@ -30,13 +30,15 @@ func TestExecutor_Retrieve(t *testing.T) {
 	}
 
 	want, err := executor.New(&executor.Setup{
-		Driver:   constants.DriverLinux,
-		Client:   new(vela.Client),
-		Runtime:  _runtime,
-		Build:    new(library.Build),
-		Pipeline: new(pipeline.Build),
-		Repo:     new(library.Repo),
-		User:     new(library.User),
+		Driver:     constants.DriverLinux,
+		LogMethod:  "byte-chunks",
+		MaxLogSize: 2097152,
+		Client:     new(vela.Client),
+		Runtime:    _runtime,
+		Build:      new(library.Build),
+		Pipeline:   new(pipeline.Build),
+		Repo:       new(library.Repo),
+		User:       new(library.User),
 	})
 	if err != nil {
 		t.Errorf("unable to create executor engine: %v", err)
@@ -64,13 +66,15 @@ func TestExecutor_Establish(t *testing.T) {
 	}
 
 	want, err := executor.New(&executor.Setup{
-		Driver:   constants.DriverLinux,
-		Client:   new(vela.Client),
-		Runtime:  _runtime,
-		Build:    new(library.Build),
-		Pipeline: new(pipeline.Build),
-		Repo:     new(library.Repo),
-		User:     new(library.User),
+		Driver:     constants.DriverLinux,
+		LogMethod:  "byte-chunks",
+		MaxLogSize: 2097152,
+		Client:     new(vela.Client),
+		Runtime:    _runtime,
+		Build:      new(library.Build),
+		Pipeline:   new(pipeline.Build),
+		Repo:       new(library.Repo),
+		User:       new(library.User),
 	})
 	if err != nil {
 		t.Errorf("unable to create executor engine: %v", err)
