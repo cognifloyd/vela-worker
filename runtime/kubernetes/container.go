@@ -233,7 +233,7 @@ func (c *client) TailContainer(ctx context.Context, ctn *pipeline.Container) (io
 
 	logsError := containerTracker.LogsError
 	// io.EOF means that all logs have been captured.
-	if logsError != nil && logsError != io.EOF {
+	if logsError != nil && logsError != io.EOF && logsError != TruncatedLogs {
 		// TODO: modify the executor to accept record partial logs before the failure
 		return logs, logsError
 	}
@@ -308,6 +308,7 @@ func (p podTracker) streamContainerLogs(ctx context.Context, podTracker *contain
 			if maxLogSize > 0 && uint(len(podTracker.logs)) >= maxLogSize {
 				p.Logger.Trace("maximum log size reached")
 
+				podTracker.LogsError = TruncatedLogs
 				podTracker.logs = append(podTracker.logs, []byte("LOGS TRUNCATED: Vela Runtime MaxLogSize exceeded.\n")...)
 				break
 			}
