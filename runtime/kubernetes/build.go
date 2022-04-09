@@ -194,7 +194,7 @@ func (c *client) AssembleBuild(ctx context.Context, b *pipeline.Build) error {
 	}
 
 	// Populate the PodTracker caches before creating the pipeline pod
-	c.PodTracker.Start(ctx)
+	c.PodTracker.Start(ctx, c.config.maxLogSize)
 
 	if ok := cache.WaitForCacheSync(ctx.Done(), c.PodTracker.PodSynced); !ok {
 		return fmt.Errorf("failed to wait for caches to sync")

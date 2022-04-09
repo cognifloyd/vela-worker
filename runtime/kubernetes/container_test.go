@@ -410,7 +410,7 @@ func TestKubernetes_WaitContainer(t *testing.T) {
 			defer done()
 
 			// enable the add/update/delete funcs for pod changes
-			_engine.PodTracker.Start(ctx)
+			_engine.PodTracker.Start(ctx, _engine.config.maxLogSize)
 
 			go func() {
 				// revert the cached pod to an "older" version
