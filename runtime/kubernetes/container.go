@@ -243,7 +243,7 @@ func (c *client) TailContainer(ctx context.Context, ctn *pipeline.Container) (io
 
 // streamContainerLogs streams the logs to a cache up to a maxLogSize, restarting the stream as needed.
 // streamContainerLogs is designed to run in its own goroutine.
-func (p podTracker) streamContainerLogs(ctx context.Context, podTracker *containerTracker, maxLogSize uint) {
+func (p podTracker) streamContainerLogs(ctx context.Context, ctnTracker *containerTracker, maxLogSize uint) {
 	// create function for periodically capturing
 	// the logs from the container with backoff
 	logsFunc := func() (bool, error) {
@@ -251,7 +251,7 @@ func (p podTracker) streamContainerLogs(ctx context.Context, podTracker *contain
 		//
 		// https://pkg.go.dev/k8s.io/api/core/v1?tab=doc#PodLogOptions
 		opts := &v1.PodLogOptions{
-			Container:  podTracker.Name,
+			Container:  ctnTracker.Name,
 			Follow:     true,
 			Timestamps: false,
 		}
@@ -262,8 +262,8 @@ func (p podTracker) streamContainerLogs(ctx context.Context, podTracker *contain
 		// ->
 		// https://pkg.go.dev/k8s.io/client-go/rest?tab=doc#Request.Stream
 		stream, err := p.Kubernetes.CoreV1().
-			Pods(podTracker.Namespace).
-			GetLogs(podTracker.Name, opts).
+			Pods(ctnTracker.Namespace).
+			GetLogs(ctnTracker.Name, opts).
 			Stream(context.Background())
 		if err != nil {
 			p.Logger.Errorf("failed to stream logs for %s, %v", p.TrackedPod, err)
@@ -283,12 +283,12 @@ func (p podTracker) streamContainerLogs(ctx context.Context, podTracker *contain
 			line, err := reader.ReadBytes('\n')
 			if len(line) != 0 {
 				// cache the log line
-				podTracker.logs = append(podTracker.logs, line...)
+				ctnTracker.logs = append(ctnTracker.logs, line...)
 			}
 
 			if err != nil {
 				// save err even if its io.EOF as EOF indicates all logs were read.
-				podTracker.LogsError = err
+				ctnTracker.LogsError = err
 
 				if err != io.EOF {
 					p.Logger.Errorf("error while streaming logs for %s, %v", p.TrackedPod, err)
@@ -305,17 +305,17 @@ func (p podTracker) streamContainerLogs(ctx context.Context, podTracker *contain
 
 			// there are more logs to read
 			// check whether we've reached the maximum log size
-			if maxLogSize > 0 && uint(len(podTracker.logs)) >= maxLogSize {
+			if maxLogSize > 0 && uint(len(ctnTracker.logs)) >= maxLogSize {
 				p.Logger.Trace("maximum log size reached")
 
-				podTracker.LogsError = TruncatedLogs
-				podTracker.logs = append(podTracker.logs, []byte("LOGS TRUNCATED: Vela Runtime MaxLogSize exceeded.\n")...)
+				ctnTracker.LogsError = TruncatedLogs
+				ctnTracker.logs = append(ctnTracker.logs, []byte("LOGS TRUNCATED: Vela Runtime MaxLogSize exceeded.\n")...)
 				break
 			}
 		}
 
 		// check if we have container logs from the stream
-		if len(podTracker.logs) > 0 {
+		if len(ctnTracker.logs) > 0 {
 			// no more logs to stream
 			return true, nil
 		}
@@ -336,16 +336,16 @@ func (p podTracker) streamContainerLogs(ctx context.Context, podTracker *contain
 		Cap:      2 * time.Minute,
 	}
 
-	p.Logger.Tracef("capturing logs with exponential backoff for container %s", podTracker.Name)
+	p.Logger.Tracef("capturing logs with exponential backoff for container %s", ctnTracker.Name)
 	// perform the function to capture logs with periodic backoff
 	//
 	// https://pkg.go.dev/k8s.io/apimachinery/pkg/util/wait?tab=doc#ExponentialBackoff
 	err := wait.ExponentialBackoffWithContext(ctx, backoff, logsFunc)
 	if err != nil {
-		p.Logger.Errorf("exponential backoff error while streaming logs for %s, %v", podTracker.Name, err)
+		p.Logger.Errorf("exponential backoff error while streaming logs for %s, %v", ctnTracker.Name, err)
 
-		if podTracker.LogsError == nil {
-			podTracker.LogsError = err
+		if ctnTracker.LogsError == nil {
+			ctnTracker.LogsError = err
 		}
 	}
 }
