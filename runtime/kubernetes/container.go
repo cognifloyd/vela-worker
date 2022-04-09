@@ -281,6 +281,7 @@ func (p podTracker) streamContainerLogs(ctx context.Context, podTracker *contain
 			if maxLogSize > 0 && uint(len(podTracker.logs)) >= maxLogSize {
 				p.Logger.Trace("maximum log size reached")
 
+				podTracker.logs = append(podTracker.logs, []byte("LOGS TRUNCATED: Vela Runtime MaxLogSize exceeded.\n")...)
 				break
 			}
 		}
