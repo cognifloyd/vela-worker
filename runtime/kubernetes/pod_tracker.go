@@ -26,6 +26,8 @@ import (
 
 // containerTracker contains useful signals that are managed by the podTracker.
 type containerTracker struct {
+	// Namespace is the namespace the tracked container is in
+	Namespace string
 	// Name is the name of the container
 	Name string
 	// terminatedOnce ensures that the Terminated channel only gets closed once.
@@ -177,6 +179,7 @@ func newPodTracker(log *logrus.Entry, clientset kubernetes.Interface, pod *v1.Po
 	containers := map[string]*containerTracker{}
 	for _, ctn := range pod.Spec.Containers {
 		containers[ctn.Name] = &containerTracker{
+			Namespace:  pod.ObjectMeta.Namespace,
 			Name:       ctn.Name,
 			Terminated: make(chan struct{}),
 		}
