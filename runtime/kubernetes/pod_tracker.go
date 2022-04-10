@@ -8,7 +8,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"sync"
 	"time"
 
@@ -25,7 +24,7 @@ import (
 	listers "k8s.io/client-go/listers/core/v1"
 	"k8s.io/client-go/tools/cache"
 
-	"github.com/go-vela/worker/internal/log"
+	logBuffer "github.com/go-vela/worker/internal/log"
 )
 
 // ErrTruncatedLogs is an error that allows the log streaming to indicate
@@ -42,15 +41,10 @@ type containerTracker struct {
 	terminatedOnce sync.Once
 	// Terminated will be closed once the container reaches a terminal state.
 	Terminated chan struct{}
-	// logs contains all logs streamed for this container (they may be truncated if too large).
-	logs log.Buffer
+	// Logs contains all logs streamed for this container (they may be truncated if too large).
+	Logs logBuffer.Buffer
 	// LogsError holds an error if streaming the logs had an unrecoverable failure
 	LogsError error
-}
-
-// Logs provides an io.Reader that streams all the logs streamed so far.
-func (c *containerTracker) Logs() io.Reader {
-	return c.logs.NewReader()
 }
 
 // podTracker contains Informers used to watch and synchronize local k8s caches.
@@ -157,14 +151,14 @@ func (p podTracker) getTrackedPod(obj interface{}) *v1.Pod {
 func (p podTracker) Start(ctx context.Context, maxLogSize uint) {
 	p.Logger.Tracef("starting PodTracker for pod %s", p.TrackedPod)
 
-	// Begin log streaming before any of the step containers have started
-	// to ensure to capture logs for short-lived steps.
-	for _, containerTracker := range p.Containers {
-		go p.streamContainerLogs(ctx, containerTracker, maxLogSize)
-	}
-
 	// Start method is non-blocking and runs all registered informers in a dedicated goroutine.
 	p.informerFactory.Start(ctx.Done())
+
+	// Begin log streaming before any of the step containers have started
+	// to ensure to capture logs for short-lived steps.
+	for _, ctnTracker := range p.Containers {
+		go p.streamContainerLogs(ctx, ctnTracker, maxLogSize)
+	}
 }
 
 // newPodTracker initializes a podTracker with a given clientset for a given pod.
@@ -204,6 +198,7 @@ func newPodTracker(log *logrus.Entry, clientset kubernetes.Interface, pod *v1.Po
 			Namespace:  pod.ObjectMeta.Namespace,
 			Name:       ctn.Name,
 			Terminated: make(chan struct{}),
+			Logs:       logBuffer.NewBuffer(),
 		}
 	}
 
