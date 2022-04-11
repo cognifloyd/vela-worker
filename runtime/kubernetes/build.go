@@ -7,12 +7,14 @@ package kubernetes
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/go-vela/types/pipeline"
 	"github.com/go-vela/worker/runtime/kubernetes/apis/vela/v1alpha1"
 
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/tools/cache"
 
 	// The k8s libraries have some quirks around yaml marshaling (see opts.go).
 	// So, just use the same library for all kubernetes-related YAML.
@@ -125,6 +127,14 @@ func (c *client) SetupBuild(ctx context.Context, b *pipeline.Build) error {
 		}
 	}
 
+	// initialize the PodTracker now that we have a Pod for it to track
+	tracker, err := newPodTracker(c.Logger, c.Kubernetes, c.Pod, time.Second*30)
+	if err != nil {
+		return err
+	}
+
+	c.PodTracker = tracker
+
 	return nil
 }
 
@@ -181,6 +191,13 @@ func (c *client) AssembleBuild(ctx context.Context, b *pipeline.Build) error {
 		if err != nil {
 			return err
 		}
+	}
+
+	// Populate the PodTracker caches before creating the pipeline pod
+	c.PodTracker.Start(ctx, c.config.maxLogSize)
+
+	if ok := cache.WaitForCacheSync(ctx.Done(), c.PodTracker.PodSynced); !ok {
+		return fmt.Errorf("failed to wait for caches to sync")
 	}
 
 	// If the api call to create the pod fails, the pod might

@@ -7,9 +7,9 @@ package kubernetes
 import (
 	"bufio"
 	"context"
+	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"strings"
 	"time"
 
@@ -19,7 +19,6 @@ import (
 
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/wait"
 )
@@ -28,18 +27,8 @@ import (
 func (c *client) InspectContainer(ctx context.Context, ctn *pipeline.Container) error {
 	c.Logger.Tracef("inspecting container %s", ctn.ID)
 
-	// create options for getting the container
-	opts := metav1.GetOptions{}
-
-	// send API call to capture the container
-	//
-	// https://pkg.go.dev/k8s.io/client-go/kubernetes/typed/core/v1?tab=doc#PodInterface
-	// nolint: contextcheck // ignore non-inherited new context
-	pod, err := c.Kubernetes.CoreV1().Pods(c.config.Namespace).Get(
-		context.Background(),
-		c.Pod.ObjectMeta.Name,
-		opts,
-	)
+	// get the pod from the local cache, which the Informer keeps up-to-date
+	pod, err := c.PodTracker.PodLister.Pods(c.config.Namespace).Get(c.Pod.ObjectMeta.Name)
 	if err != nil {
 		return err
 	}
@@ -234,6 +223,28 @@ func (c *client) TailContainer(ctx context.Context, ctn *pipeline.Container) (io
 	// create object to store container logs
 	var logs io.ReadCloser
 
+	// get the containerTracker for this container
+	containerTracker, ok := c.PodTracker.Containers[ctn.ID]
+	if !ok {
+		return nil, fmt.Errorf("containerTracker is missing for %s", ctn.ID)
+	}
+
+	// wrap the bytes.Reader in an io.NopCloser
+	logs = io.NopCloser(containerTracker.Logs.NewReader())
+
+	logsError := containerTracker.LogsError
+	// io.EOF means that all logs have been captured.
+	if logsError != nil && !errors.Is(logsError, io.EOF) && !errors.Is(logsError, ErrTruncatedLogs) {
+		// TODO: modify the executor to accept record partial logs before the failure
+		return logs, logsError
+	}
+
+	return logs, nil
+}
+
+// streamContainerLogs streams the logs to a cache up to a maxLogSize, restarting the stream as needed.
+// streamContainerLogs is designed to run in its own goroutine.
+func (p podTracker) streamContainerLogs(ctx context.Context, ctnTracker *containerTracker, maxLogSize uint) {
 	// create function for periodically capturing
 	// the logs from the container with backoff
 	logsFunc := func() (bool, error) {
@@ -241,15 +252,8 @@ func (c *client) TailContainer(ctx context.Context, ctn *pipeline.Container) (io
 		//
 		// https://pkg.go.dev/k8s.io/api/core/v1?tab=doc#PodLogOptions
 		opts := &v1.PodLogOptions{
-			Container: ctn.ID,
-			Follow:    true,
-			// steps can exit quickly, and might be gone before
-			// log tailing has started, so we need to request
-			// logs for previously exited containers as well.
-			// Pods get deleted after job completion, and names for
-			// pod+container don't get reused. So, previous
-			// should only retrieve logs for the current build step.
-			Previous:   true,
+			Container:  ctnTracker.Name,
+			Follow:     true,
 			Timestamps: false,
 		}
 
@@ -258,34 +262,69 @@ func (c *client) TailContainer(ctx context.Context, ctn *pipeline.Container) (io
 		// https://pkg.go.dev/k8s.io/client-go/kubernetes/typed/core/v1?tab=doc#PodExpansion
 		// ->
 		// https://pkg.go.dev/k8s.io/client-go/rest?tab=doc#Request.Stream
-		stream, err := c.Kubernetes.CoreV1().
-			Pods(c.config.Namespace).
-			GetLogs(c.Pod.ObjectMeta.Name, opts).
+		stream, err := p.Kubernetes.CoreV1().
+			Pods(ctnTracker.Namespace).
+			GetLogs(ctnTracker.Name, opts).
 			Stream(context.Background())
 		if err != nil {
-			c.Logger.Errorf("%v", err)
+			p.Logger.Errorf("failed to stream logs for %s, %v", p.TrackedPod, err)
+
+			// retry the API call
 			return false, nil
 		}
 
-		// create temporary reader to ensure logs are available
-		reader := bufio.NewReader(stream)
+		defer stream.Close()
 
-		// peek at container logs from the stream
-		bytes, err := reader.Peek(5)
-		if err != nil {
-			// nolint: nilerr // ignore nil return
-			// skip so we resend API call to capture stream
-			return false, nil
+		// save everything read from the stream to the logs cache.
+		tee := io.TeeReader(stream, ctnTracker.Logs)
+		// create a reader that allows reading one line at a time
+		reader := bufio.NewReader(tee)
+
+		// this loop is loosely based on github.com/stern/stern.Tail.ConsumeRequest()
+		for {
+			// read one line (the tee saves it to the cache)
+			_, err := reader.ReadBytes('\n')
+
+			if err != nil {
+				// save err even if its io.EOF as EOF indicates all logs were read.
+				ctnTracker.LogsError = err
+
+				if !errors.Is(err, io.EOF) {
+					p.Logger.Errorf("error while streaming logs for %s, %v", p.TrackedPod, err)
+
+					// we did not reach the end of the logs so let's try again.
+					// If this proves problematic, we might need to de-dup log lines
+					// which might require using opts.Timestamps or opts.SinceSeconds.
+					return false, nil
+				}
+
+				// hooray! we reached io.EOF (the end of the logs)
+				break
+			}
+
+			// there are more logs to read
+			// check whether we've reached the maximum log size
+			if maxLogSize > 0 && uint(ctnTracker.Logs.Length()) >= maxLogSize {
+				p.Logger.Trace("maximum log size reached")
+
+				ctnTracker.LogsError = ErrTruncatedLogs
+
+				_, err = ctnTracker.Logs.Write([]byte("LOGS TRUNCATED: Vela Runtime MaxLogSize exceeded.\n"))
+				if err != nil {
+					p.Logger.Errorf("error adding log truncated message for %s, %v", p.TrackedPod, err)
+				}
+
+				break
+			}
 		}
 
 		// check if we have container logs from the stream
-		if len(bytes) > 0 {
-			// set the logs to the reader
-			logs = ioutil.NopCloser(reader)
+		if ctnTracker.Logs.Length() > 0 {
+			// no more logs to stream
 			return true, nil
 		}
 
-		// no logs are available
+		// no logs are available, so try again
 		return false, nil
 	}
 
@@ -301,89 +340,68 @@ func (c *client) TailContainer(ctx context.Context, ctn *pipeline.Container) (io
 		Cap:      2 * time.Minute,
 	}
 
-	c.Logger.Tracef("capturing logs with exponential backoff for container %s", ctn.ID)
+	p.Logger.Tracef("capturing logs with exponential backoff for container %s", ctnTracker.Name)
 	// perform the function to capture logs with periodic backoff
 	//
 	// https://pkg.go.dev/k8s.io/apimachinery/pkg/util/wait?tab=doc#ExponentialBackoff
-	err := wait.ExponentialBackoff(backoff, logsFunc)
+	err := wait.ExponentialBackoffWithContext(ctx, backoff, logsFunc)
 	if err != nil {
-		return nil, err
-	}
+		p.Logger.Errorf("exponential backoff error while streaming logs for %s, %v", ctnTracker.Name, err)
 
-	return logs, nil
+		if ctnTracker.LogsError == nil {
+			ctnTracker.LogsError = err
+		}
+	}
 }
 
 // WaitContainer blocks until the pipeline container completes.
 func (c *client) WaitContainer(ctx context.Context, ctn *pipeline.Container) error {
 	c.Logger.Tracef("waiting for container %s", ctn.ID)
 
-	// create label selector for watching the pod
-	selector := fmt.Sprintf("pipeline=%s", fields.EscapeValue(c.Pod.ObjectMeta.Name))
-
-	// create options for watching the container
-	opts := metav1.ListOptions{
-		LabelSelector: selector,
-		Watch:         true,
+	// get the containerTracker for this container
+	tracker, ok := c.PodTracker.Containers[ctn.ID]
+	if !ok {
+		return fmt.Errorf("containerTracker is missing for %s", ctn.ID)
 	}
 
-	// send API call to capture channel for watching the container
+	// wait for the container terminated signal
+	<-tracker.Terminated
+
+	return nil
+}
+
+// inspectContainerStatuses signals when a container reaches a terminal state.
+func (p podTracker) inspectContainerStatuses(pod *v1.Pod) {
+	// check if the pod is in a pending state
 	//
-	// https://pkg.go.dev/k8s.io/client-go/kubernetes/typed/core/v1?tab=doc#PodInterface
-	// ->
-	// https://pkg.go.dev/k8s.io/apimachinery/pkg/watch?tab=doc#Interface
-	// nolint: contextcheck // ignore non-inherited new context
-	podWatch, err := c.Kubernetes.CoreV1().Pods(c.config.Namespace).Watch(context.Background(), opts)
-	if err != nil {
-		return err
+	// https://pkg.go.dev/k8s.io/api/core/v1?tab=doc#PodStatus
+	if pod.Status.Phase == v1.PodPending {
+		// nothing to inspect if pod is in a pending state
+		return
 	}
 
-	defer podWatch.Stop()
-
-	for {
-		// capture new result from the channel
-		//
-		// https://pkg.go.dev/k8s.io/apimachinery/pkg/watch?tab=doc#Interface
-		result := <-podWatch.ResultChan()
-
-		// convert the object from the result to a pod
-		pod, ok := result.Object.(*v1.Pod)
+	// iterate through each container in the pod
+	for _, cst := range pod.Status.ContainerStatuses {
+		// get the containerTracker for this container
+		tracker, ok := p.Containers[cst.Name]
 		if !ok {
-			return fmt.Errorf("unable to watch pod %s", c.Pod.ObjectMeta.Name)
-		}
-
-		// check if the pod is in a pending state
-		//
-		// https://pkg.go.dev/k8s.io/api/core/v1?tab=doc#PodStatus
-		if pod.Status.Phase == v1.PodPending {
-			// skip pod if it's in a pending state
+			// unknown container
 			continue
 		}
 
-		// iterate through each container in the pod
-		for _, cst := range pod.Status.ContainerStatuses {
-			// check if the container has a matching ID
-			//
-			// https://pkg.go.dev/k8s.io/api/core/v1?tab=doc#ContainerStatus
-			if !strings.EqualFold(cst.Name, ctn.ID) {
-				// skip container if it's not a matching ID
-				continue
-			}
-
-			// check if the container is in a terminated state
-			//
-			// https://pkg.go.dev/k8s.io/api/core/v1?tab=doc#ContainerState
-			if cst.State.Terminated == nil {
-				// skip container if it's not in a terminated state
-				break
-			}
-
-			// check if the container has a terminated state reason
-			//
-			// https://pkg.go.dev/k8s.io/api/core/v1?tab=doc#ContainerStateTerminated
-			if len(cst.State.Terminated.Reason) > 0 {
-				// break watching the container as it's complete
-				return nil
-			}
+		// check if the container is in a terminated state
+		//
+		// https://pkg.go.dev/k8s.io/api/core/v1?tab=doc#ContainerState
+		if cst.State.Terminated != nil {
+			// && len(cst.State.Terminated.Reason) > 0 {
+			// WaitContainer used to check Terminated.Reason as well.
+			// if that is still needed, then we can add that check here
+			// or retrieve the pod with something like this in WaitContainer:
+			// c.PodTracker.PodLister.Pods(c.config.Namespace).Get(c.Pod.GetName())
+			tracker.terminatedOnce.Do(func() {
+				// let WaitContainer know the container is terminated
+				close(tracker.Terminated)
+			})
 		}
 	}
 }
