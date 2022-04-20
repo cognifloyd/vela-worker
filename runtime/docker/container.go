@@ -271,10 +271,10 @@ func (c *client) TailContainer(ctx context.Context, ctn *pipeline.Container) (io
 		}
 
 		// close logs buffer
-		logs.Close()
+		_ = logs.Close()
 
 		// close in-memory pipe write closer
-		wc.Close()
+		_ = wc.Close()
 	}()
 
 	return rc, nil

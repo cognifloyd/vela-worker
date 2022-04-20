@@ -193,7 +193,7 @@ func (c *client) CancelBuild() (*library.Build, error) {
 
 	err = c.DestroyBuild(context.Background())
 	if err != nil {
-		fmt.Fprintln(os.Stdout, "unable to destroy build:", err)
+		_, _ = fmt.Fprintln(os.Stdout, "unable to destroy build:", err)
 	}
 
 	return b, nil

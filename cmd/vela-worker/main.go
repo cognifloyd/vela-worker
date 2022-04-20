@@ -46,7 +46,7 @@ func main() {
 	}
 
 	// output the version information to stdout
-	fmt.Fprintf(os.Stdout, "%s\n", string(bytes))
+	_, _ = fmt.Fprintf(os.Stdout, "%s\n", string(bytes))
 
 	app := cli.NewApp()
 

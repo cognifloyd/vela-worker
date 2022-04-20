@@ -24,7 +24,7 @@ func (c *client) CreateStage(ctx context.Context, s *pipeline.Stage) error {
 	_pattern := fmt.Sprintf(stagePattern, c.init.Name, c.init.Name)
 
 	// output init progress to stdout
-	fmt.Fprintln(os.Stdout, _pattern, "> Preparing step images for stage", s.Name, "...")
+	_, _ = fmt.Fprintln(os.Stdout, _pattern, "> Preparing step images for stage", s.Name, "...")
 
 	// create the steps for the stage
 	for _, _step := range s.Steps {
@@ -44,7 +44,7 @@ func (c *client) CreateStage(ctx context.Context, s *pipeline.Stage) error {
 		}
 
 		// output the image information to stdout
-		fmt.Fprintln(os.Stdout, _pattern, string(image))
+		_, _ = fmt.Fprintln(os.Stdout, _pattern, string(image))
 	}
 
 	return nil
@@ -122,7 +122,7 @@ func (c *client) DestroyStage(ctx context.Context, s *pipeline.Stage) error {
 		// destroy the step
 		err = c.DestroyStep(ctx, _step)
 		if err != nil {
-			fmt.Fprintln(os.Stdout, "unable to destroy step: ", err)
+			_, _ = fmt.Fprintln(os.Stdout, "unable to destroy step: ", err)
 		}
 	}
 
