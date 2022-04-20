@@ -18,6 +18,7 @@ import (
 	"github.com/go-vela/server/compiler/native"
 	"github.com/go-vela/server/mock/server"
 
+	"github.com/go-vela/worker/executor"
 	"github.com/go-vela/worker/runtime/docker"
 
 	"github.com/go-vela/sdk-go/vela"
@@ -290,6 +291,9 @@ func TestLinux_ExecStage(t *testing.T) {
 		t.Errorf("unable to create runtime engine: %v", err)
 	}
 
+	streamRequests, done := executor.MockStreamRequestsWithCancel(context.Background())
+	defer done()
+
 	// setup tests
 	tests := []struct {
 		failure bool
@@ -365,7 +369,7 @@ func TestLinux_ExecStage(t *testing.T) {
 			t.Errorf("unable to create executor engine: %v", err)
 		}
 
-		err = _engine.ExecStage(context.Background(), test.stage, stageMap)
+		err = _engine.ExecStage(context.Background(), test.stage, stageMap, streamRequests)
 
 		if test.failure {
 			if err == nil {

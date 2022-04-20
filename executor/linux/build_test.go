@@ -14,6 +14,7 @@ import (
 	"github.com/go-vela/server/mock/server"
 	"github.com/urfave/cli/v2"
 
+	"github.com/go-vela/worker/executor"
 	"github.com/go-vela/worker/runtime/docker"
 
 	"github.com/go-vela/sdk-go/vela"
@@ -232,6 +233,9 @@ func TestLinux_AssembleBuild(t *testing.T) {
 		t.Errorf("unable to create runtime engine: %v", err)
 	}
 
+	streamRequests, done := executor.MockStreamRequestsWithCancel(context.Background())
+	defer done()
+
 	tests := []struct {
 		failure  bool
 		pipeline string
@@ -316,7 +320,7 @@ func TestLinux_AssembleBuild(t *testing.T) {
 			t.Errorf("unable to create build: %v", err)
 		}
 
-		err = _engine.AssembleBuild(context.Background())
+		err = _engine.AssembleBuild(context.Background(), streamRequests)
 
 		if test.failure {
 			if err == nil {
@@ -354,6 +358,9 @@ func TestLinux_ExecBuild(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create runtime engine: %v", err)
 	}
+
+	streamRequests, done := executor.MockStreamRequestsWithCancel(context.Background())
+	defer done()
 
 	tests := []struct {
 		failure  bool
@@ -449,7 +456,7 @@ func TestLinux_ExecBuild(t *testing.T) {
 		// go-vela/server has logic to set it to an expected state.
 		_engine.build.SetStatus("running")
 
-		err = _engine.ExecBuild(context.Background())
+		err = _engine.ExecBuild(context.Background(), streamRequests)
 
 		if test.failure {
 			if err == nil {

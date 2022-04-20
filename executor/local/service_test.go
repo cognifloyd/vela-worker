@@ -8,6 +8,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/go-vela/worker/executor"
 	"github.com/go-vela/worker/runtime/docker"
 
 	"github.com/go-vela/types/library"
@@ -169,6 +170,9 @@ func TestLocal_ExecService(t *testing.T) {
 		t.Errorf("unable to create runtime engine: %v", err)
 	}
 
+	streamRequests, done := executor.MockStreamRequestsWithCancel(context.Background())
+	defer done()
+
 	// setup tests
 	tests := []struct {
 		failure   bool
@@ -225,7 +229,7 @@ func TestLocal_ExecService(t *testing.T) {
 			_engine.services.Store(test.container.ID, new(library.Service))
 		}
 
-		err = _engine.ExecService(context.Background(), test.container)
+		err = _engine.ExecService(context.Background(), test.container, streamRequests)
 
 		if test.failure {
 			if err == nil {

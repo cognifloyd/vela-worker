@@ -12,6 +12,7 @@ import (
 	"github.com/go-vela/server/compiler/native"
 	"github.com/urfave/cli/v2"
 
+	"github.com/go-vela/worker/executor"
 	"github.com/go-vela/worker/runtime/docker"
 )
 
@@ -174,6 +175,9 @@ func TestLocal_AssembleBuild(t *testing.T) {
 		t.Errorf("unable to create runtime engine: %v", err)
 	}
 
+	streamRequests, done := executor.MockStreamRequestsWithCancel(context.Background())
+	defer done()
+
 	tests := []struct {
 		failure  bool
 		pipeline string
@@ -245,7 +249,7 @@ func TestLocal_AssembleBuild(t *testing.T) {
 			t.Errorf("unable to create build: %v", err)
 		}
 
-		err = _engine.AssembleBuild(context.Background())
+		err = _engine.AssembleBuild(context.Background(), streamRequests)
 
 		if test.failure {
 			if err == nil {
@@ -273,6 +277,9 @@ func TestLocal_ExecBuild(t *testing.T) {
 	if err != nil {
 		t.Errorf("unable to create runtime engine: %v", err)
 	}
+
+	streamRequests, done := executor.MockStreamRequestsWithCancel(context.Background())
+	defer done()
 
 	tests := []struct {
 		failure  bool
@@ -333,7 +340,7 @@ func TestLocal_ExecBuild(t *testing.T) {
 			t.Errorf("unable to create build: %v", err)
 		}
 
-		err = _engine.ExecBuild(context.Background())
+		err = _engine.ExecBuild(context.Background(), streamRequests)
 
 		if test.failure {
 			if err == nil {
