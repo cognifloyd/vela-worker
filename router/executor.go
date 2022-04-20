@@ -36,27 +36,27 @@ func ExecutorHandlers(base *gin.RouterGroup) {
 		// add a collection of endpoints for handling executor related requests
 		//
 		// https://pkg.go.dev/github.com/gin-gonic/gin?tab=doc#RouterGroup.Group
-		executor := executors.Group("/:executor", executor.Establish())
+		executorGrp := executors.Group("/:executor", executor.Establish())
 		{
 			// add an endpoint for capturing a executor
 			//
 			// https://pkg.go.dev/github.com/gin-gonic/gin?tab=doc#RouterGroup.GET
-			executor.GET("", api.GetExecutor)
+			executorGrp.GET("", api.GetExecutor)
 
 			// add a collection of endpoints for handling build related requests
 			//
 			// https://pkg.go.dev/github.com/go-vela/worker/router?tab=doc#BuildHandlers
-			BuildHandlers(executor)
+			BuildHandlers(executorGrp)
 
 			// add a collection of endpoints for handling pipeline related requests
 			//
 			// https://pkg.go.dev/github.com/go-vela/worker/router?tab=doc#PipelineHandlers
-			PipelineHandlers(executor)
+			PipelineHandlers(executorGrp)
 
 			// add a collection of endpoints for handling repo related requests
 			//
 			// https://pkg.go.dev/github.com/go-vela/worker/router?tab=doc#RepoHandlers
-			RepoHandlers(executor)
+			RepoHandlers(executorGrp)
 		}
 	}
 }

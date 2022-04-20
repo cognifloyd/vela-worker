@@ -324,9 +324,9 @@ func TestLinux_Secret_pull(t *testing.T) {
 
 	gin.SetMode(gin.TestMode)
 
-	server := httptest.NewServer(server.FakeHandler())
+	httpServer := httptest.NewServer(server.FakeHandler())
 
-	_client, err := vela.NewClient(server.URL, "", nil)
+	_client, err := vela.NewClient(httpServer.URL, "", nil)
 	if err != nil {
 		t.Errorf("unable to create Vela API client: %v", err)
 	}

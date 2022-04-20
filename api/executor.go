@@ -47,15 +47,15 @@ func GetExecutor(c *gin.Context) {
 	var err error
 
 	e := exec.Retrieve(c)
-	executor := &library.Executor{}
+	executorObj := &library.Executor{}
 
 	// TODO: Add this information from the context or helpers on executor
-	// tmp.SetHost(executor.GetHost())
-	executor.SetRuntime("docker")
-	executor.SetDistribution("linux")
+	// tmp.SetHost(executorObj.GetHost())
+	executorObj.SetRuntime("docker")
+	executorObj.SetDistribution("linux")
 
 	// get build on executor
-	executor.Build, err = e.GetBuild()
+	executorObj.Build, err = e.GetBuild()
 	if err != nil {
 		msg := fmt.Errorf("unable to retrieve build: %w", err).Error()
 
@@ -65,7 +65,7 @@ func GetExecutor(c *gin.Context) {
 	}
 
 	// get pipeline on executor
-	executor.Pipeline, err = e.GetPipeline()
+	executorObj.Pipeline, err = e.GetPipeline()
 	if err != nil {
 		msg := fmt.Errorf("unable to retrieve pipeline: %w", err).Error()
 
@@ -75,7 +75,7 @@ func GetExecutor(c *gin.Context) {
 	}
 
 	// get repo on executor
-	executor.Repo, err = e.GetRepo()
+	executorObj.Repo, err = e.GetRepo()
 	if err != nil {
 		msg := fmt.Errorf("unable to retrieve repo: %w", err).Error()
 
@@ -84,7 +84,7 @@ func GetExecutor(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, executor)
+	c.JSON(http.StatusOK, executorObj)
 }
 
 // swagger:operation GET /api/v1/executors executor GetExecutors
@@ -133,18 +133,18 @@ func GetExecutors(c *gin.Context) {
 
 	executors := []*library.Executor{}
 
-	for id, executor := range e {
+	for id, executorObj := range e {
 		// create a temporary executor to append results to response
 		tmp := &library.Executor{}
 
 		// TODO: Add this information from the context or helpers on executor
-		// tmp.SetHost(executor.GetHost())
+		// tmp.SetHost(executorObj.GetHost())
 		tmp.SetRuntime("docker")
 		tmp.SetDistribution("linux")
 		tmp.SetID(int64(id))
 
 		// get build on executor
-		tmp.Build, err = executor.GetBuild()
+		tmp.Build, err = executorObj.GetBuild()
 		if err != nil {
 			msg := fmt.Errorf("unable to retrieve build: %w", err).Error()
 
@@ -154,7 +154,7 @@ func GetExecutors(c *gin.Context) {
 		}
 
 		// get pipeline on executor
-		tmp.Pipeline, err = executor.GetPipeline()
+		tmp.Pipeline, err = executorObj.GetPipeline()
 		if err != nil {
 			msg := fmt.Errorf("unable to retrieve pipeline: %w", err).Error()
 
@@ -164,7 +164,7 @@ func GetExecutors(c *gin.Context) {
 		}
 
 		// get repo on executor
-		tmp.Repo, err = executor.GetRepo()
+		tmp.Repo, err = executorObj.GetRepo()
 		if err != nil {
 			msg := fmt.Errorf("unable to retrieve repo: %w", err).Error()
 

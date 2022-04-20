@@ -64,13 +64,13 @@ func (c *client) InspectVolume(ctx context.Context, b *pipeline.Build) ([]byte, 
 	// convert volume type Volume to bytes with pretty print
 	//
 	// https://godoc.org/github.com/docker/docker/api/types#Volume
-	volume, err := json.MarshalIndent(v, "", " ")
+	volumeOutput, err := json.MarshalIndent(v, "", " ")
 	if err != nil {
 		return output, err
 	}
 
 	// add new line to end of bytes
-	return append(output, append(volume, "\n"...)...), nil
+	return append(output, append(volumeOutput, "\n"...)...), nil
 }
 
 // RemoveVolume deletes the pipeline volume.

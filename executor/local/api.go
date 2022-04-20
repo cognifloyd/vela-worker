@@ -60,14 +60,14 @@ func (c *client) CancelBuild() (*library.Build, error) {
 	b.SetStatus(constants.StatusCanceled)
 
 	// get the current pipeline from the client
-	pipeline, err := c.GetPipeline()
+	buildPipeline, err := c.GetPipeline()
 	if err != nil {
 		return nil, err
 	}
 
 	// cancel non successful services
 	// nolint: dupl // false positive, steps/services are different
-	for _, _service := range pipeline.Services {
+	for _, _service := range buildPipeline.Services {
 		// load the service from the client
 		//
 		// https://pkg.go.dev/github.com/go-vela/worker/internal/service#Load
@@ -108,7 +108,7 @@ func (c *client) CancelBuild() (*library.Build, error) {
 
 	// cancel non successful steps
 	// nolint: dupl // false positive, steps/services are different
-	for _, _step := range pipeline.Steps {
+	for _, _step := range buildPipeline.Steps {
 		// load the step from the client
 		//
 		// https://pkg.go.dev/github.com/go-vela/worker/internal/step#Load
@@ -148,7 +148,7 @@ func (c *client) CancelBuild() (*library.Build, error) {
 	}
 
 	// cancel non successful stages
-	for _, _stage := range pipeline.Stages {
+	for _, _stage := range buildPipeline.Stages {
 		// cancel non-successful steps for that stage
 		for _, _step := range _stage.Steps {
 			// load the step from the client

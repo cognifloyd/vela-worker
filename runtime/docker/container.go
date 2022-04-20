@@ -28,7 +28,7 @@ func (c *client) InspectContainer(ctx context.Context, ctn *pipeline.Container) 
 	// send API call to inspect the container
 	//
 	// https://godoc.org/github.com/docker/docker/client#Client.ContainerInspect
-	container, err := c.Docker.ContainerInspect(ctx, ctn.ID)
+	containerJSON, err := c.Docker.ContainerInspect(ctx, ctn.ID)
 	if err != nil {
 		return err
 	}
@@ -36,7 +36,7 @@ func (c *client) InspectContainer(ctx context.Context, ctn *pipeline.Container) 
 	// capture the container exit code
 	//
 	// https://godoc.org/github.com/docker/docker/api/types#ContainerState
-	ctn.ExitCode = container.State.ExitCode
+	ctn.ExitCode = containerJSON.State.ExitCode
 
 	return nil
 }
@@ -48,7 +48,7 @@ func (c *client) RemoveContainer(ctx context.Context, ctn *pipeline.Container) e
 	// send API call to inspect the container
 	//
 	// https://godoc.org/github.com/docker/docker/client#Client.ContainerInspect
-	container, err := c.Docker.ContainerInspect(ctx, ctn.ID)
+	containerJSON, err := c.Docker.ContainerInspect(ctx, ctn.ID)
 	if err != nil {
 		return err
 	}
@@ -56,9 +56,9 @@ func (c *client) RemoveContainer(ctx context.Context, ctn *pipeline.Container) e
 	// if the container is paused, restarting or running
 	//
 	// https://godoc.org/github.com/docker/docker/api/types#ContainerState
-	if container.State.Paused ||
-		container.State.Restarting ||
-		container.State.Running {
+	if containerJSON.State.Paused ||
+		containerJSON.State.Restarting ||
+		containerJSON.State.Running {
 		// send API call to kill the container
 		//
 		// https://godoc.org/github.com/docker/docker/client#Client.ContainerKill
