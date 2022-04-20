@@ -186,7 +186,7 @@ func (s *secretSvc) exec(ctx context.Context, p *pipeline.SecretSlice, streamReq
 
 // pull defines a function that pulls the secrets from the server for a given pipeline.
 func (s *secretSvc) pull(secret *pipeline.Secret) (*library.Secret, error) {
-	// nolint: staticcheck // reports the value is never used but we return it
+	// nolint: staticcheck // reports the value is never used, but we return it
 	_secret := new(library.Secret)
 
 	switch secret.Type {

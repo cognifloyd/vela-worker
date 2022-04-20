@@ -47,7 +47,7 @@ func (c *client) GetRepo() (*library.Repo, error) {
 }
 
 // CancelBuild cancels the current build in execution.
-// nolint: funlen // process of going through steps/services/stages is verbose and could be funcitonalized
+// nolint: funlen // process of going through steps/services/stages is verbose and could be functionalized
 func (c *client) CancelBuild() (*library.Build, error) {
 	// get the current build from the client
 	b, err := c.GetBuild()
@@ -85,7 +85,7 @@ func (c *client) CancelBuild() (*library.Build, error) {
 
 		// if service state was not terminal, set it as canceled
 		switch s.GetStatus() {
-		// service is in a error state
+		// service is in an error state
 		case constants.StatusError:
 			break
 		// service is in a failure state
@@ -126,7 +126,7 @@ func (c *client) CancelBuild() (*library.Build, error) {
 
 		// if step state was not terminal, set it as canceled
 		switch s.GetStatus() {
-		// step is in a error state
+		// step is in an error state
 		case constants.StatusError:
 			break
 		// step is in a failure state
@@ -148,7 +148,7 @@ func (c *client) CancelBuild() (*library.Build, error) {
 
 	// cancel non successful stages
 	for _, _stage := range pipeline.Stages {
-		// cancel non successful steps for that stage
+		// cancel non-successful steps for that stage
 		for _, _step := range _stage.Steps {
 			// load the step from the client
 			//
@@ -169,7 +169,7 @@ func (c *client) CancelBuild() (*library.Build, error) {
 
 			// if stage state was not terminal, set it as canceled
 			switch s.GetStatus() {
-			// stage is in a error state
+			// stage is in an error state
 			case constants.StatusError:
 				break
 			// stage is in a failure state

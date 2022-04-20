@@ -53,27 +53,27 @@ func Secure(c *gin.Context) {
 }
 
 // RequestVersion is a middleware function that injects the Vela API version
-// information into the request so it will be logged. This is
+// information into the request, so it will be logged. This is
 // intended for debugging and troubleshooting.
 func RequestVersion(c *gin.Context) {
 	v := version.New()
 
 	if gin.Mode() == "debug" {
 		c.Request.Header.Set("X-Vela-Version", v.Semantic())
-	} else { // in prod we don't want the build number metadata
+	} else { // in prod, we don't want the build number metadata
 		c.Request.Header.Set("X-Vela-Version", v.Semantic())
 	}
 }
 
 // ResponseVersion is a middleware function that injects the Vela API version
-// information into the response so it will be logged. This is
+// information into the response, so it will be logged. This is
 // intended for debugging and troubleshooting.
 func ResponseVersion(c *gin.Context) {
 	v := version.New()
 
 	if gin.Mode() == "debug" {
 		c.Header("X-Vela-Version", v.Semantic())
-	} else { // in prod we don't want the build number metadata
+	} else { // in prod, we don't want the build number metadata
 		c.Header("X-Vela-Version", v.Semantic())
 	}
 }

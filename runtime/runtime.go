@@ -16,7 +16,7 @@ import (
 // New creates and returns a Vela engine capable of
 // integrating with the configured runtime.
 //
-// Currently the following runtimes are supported:
+// Currently, the following runtimes are supported:
 //
 // * docker
 // * kubernetes

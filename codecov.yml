@@ -1,4 +1,4 @@
-# The is the default codecov.io yaml configuration all projects use
+# This is the default codecov.io yaml configuration all projects use
 # that do not have their own codecov.yml already in the project.
 #
 # https://docs.codecov.io/docs/codecov-yaml#section-default-yaml

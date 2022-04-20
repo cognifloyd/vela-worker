@@ -17,7 +17,7 @@ import (
 // New creates and returns a Vela engine capable of
 // integrating with the configured executor.
 //
-// Currently the following executors are supported:
+// Currently, the following executors are supported:
 //
 // * linux
 // * local

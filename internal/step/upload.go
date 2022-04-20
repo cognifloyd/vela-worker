@@ -22,7 +22,7 @@ func Upload(ctn *pipeline.Container, b *library.Build, c *vela.Client, l *logrus
 	// step is in a canceled state
 	case constants.StatusCanceled:
 		fallthrough
-	// step is in a error state
+	// step is in an error state
 	case constants.StatusError:
 		fallthrough
 	// step is in a failure state

@@ -109,7 +109,7 @@ func (c *client) RunContainer(ctx context.Context, ctn *pipeline.Container, b *p
 	// * https://github.com/go-vela/community/issues/253
 
 	// check if the pipeline container image contains
-	// the key words "kaniko" and "vela"
+	// the keywords "kaniko" and "vela"
 	//
 	// this is a soft check for the Vela Kaniko plugin
 	if strings.Contains(ctn.Image, "kaniko") &&

@@ -27,7 +27,7 @@ func (c *client) CreateVolume(ctx context.Context, b *pipeline.Build) error {
 	// the pod. Each container inside the pod can access and use
 	// the same volume. This allows them to share this volume
 	// throughout the life of the pod. However, to keep the
-	// runtime behavior consistent, Vela uses an emtpyDir volume
+	// runtime behavior consistent, Vela uses an emptyDir volume
 	// because that volume only exists for the life
 	// of the pod.
 	//
@@ -114,7 +114,7 @@ func (c *client) InspectVolume(ctx context.Context, b *pipeline.Build) ([]byte, 
 //
 // Currently, this is comparable to a no-op because in Kubernetes the
 // volume lives and dies with the pod it's attached to. However, Vela
-// uses it to cleanup the volume definition for the pod.
+// uses it to clean up the volume definition for the pod.
 func (c *client) RemoveVolume(ctx context.Context, b *pipeline.Build) error {
 	c.Logger.Tracef("removing volume for pipeline %s", b.ID)
 
@@ -147,7 +147,7 @@ func (c *client) setupVolumeMounts(ctx context.Context, ctn *pipeline.Container)
 	// * https://github.com/go-vela/community/issues/253
 
 	// check if the pipeline container image contains
-	// the key words "kaniko" and "vela"
+	// the keywords "kaniko" and "vela"
 	//
 	// this is a soft check for the Vela Kaniko plugin
 	if strings.Contains(ctn.Image, "kaniko") &&

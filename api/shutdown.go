@@ -25,10 +25,10 @@ import (
 //     schema:
 //       type: string
 
-// Shutdown represents the API handler to shutdown a
-// executors currently running on an worker.
+// Shutdown represents the API handler to shut down all
+// executors currently running on a worker.
 //
-// This function performs a soft shut down of a worker.
+// This function performs a soft shutdown of a worker.
 // Any build running during this time will safely complete, then
 // the worker will safely shut itself down.
 func Shutdown(c *gin.Context) {

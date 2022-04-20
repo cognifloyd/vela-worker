@@ -134,7 +134,7 @@ func (c *client) SetupContainer(ctx context.Context, ctn *pipeline.Container) er
 		// executed inside the pod. Kubernetes will attempt to
 		// start and run all containers in the pod at once. We
 		// want to control the execution of the containers
-		// inside the pod so we use the pause image as the
+		// inside the pod, so we use the pause image as the
 		// default for containers, and then sequentially patch
 		// the containers with the proper image.
 		//
@@ -159,7 +159,7 @@ func (c *client) SetupContainer(ctx context.Context, ctn *pipeline.Container) er
 	case constants.PullOnStart:
 		// set the pod container pull policy to always
 		//
-		// if the pipeline container image should be pulled on start, than
+		// if the pipeline container image should be pulled on start, then
 		// we force Kubernetes to pull the image on start with the always
 		// pull policy for the pod container
 		container.ImagePullPolicy = v1.PullAlways

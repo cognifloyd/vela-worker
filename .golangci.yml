@@ -52,7 +52,7 @@ linters-settings:
 
 # This section provides the configuration for which linters
 # golangci will execute. Several of them were disabled by
-# default but we've opted to enable them.
+# default, but we've opted to enable them.
 linters:
   # disable all linters as new linters might be added to golangci
   disable-all: true
@@ -61,7 +61,7 @@ linters:
   enable:
     - bidichk             # checks for dangerous unicode character sequences
     - bodyclose           # checks whether HTTP response body is closed successfully
-    - contextcheck        # check the function whether use a non-inherited context
+    - contextcheck        # check if function uses a non-inherited context
     - deadcode            # finds unused code
     - dupl                # code clone detection
     - errcheck            # checks for unchecked errors

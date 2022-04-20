@@ -22,7 +22,7 @@ func Upload(b *library.Build, c *vela.Client, e error, l *logrus.Entry, r *libra
 	// build is in a canceled state
 	case constants.StatusCanceled:
 		fallthrough
-	// build is in a error state
+	// build is in an error state
 	case constants.StatusError:
 		fallthrough
 	// build is in a failure state

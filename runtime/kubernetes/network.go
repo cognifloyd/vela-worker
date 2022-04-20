@@ -108,7 +108,7 @@ func (c *client) InspectNetwork(ctx context.Context, b *pipeline.Build) ([]byte,
 //
 // Currently, this is comparable to a no-op because in Kubernetes the
 // network lives and dies with the pod it's attached to. However, Vela
-// uses it to cleanup the network definition for the pod.
+// uses it to clean up the network definition for the pod.
 func (c *client) RemoveNetwork(ctx context.Context, b *pipeline.Build) error {
 	c.Logger.Tracef("removing network for pipeline %s", b.ID)
 

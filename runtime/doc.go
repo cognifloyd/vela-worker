@@ -6,7 +6,7 @@
 // integrate with different supported Runtime
 // environments.
 //
-// Currently the following runtimes are supported:
+// Currently, the following runtimes are supported:
 //
 // * Docker - https://docker.io/
 // * Kubernetes - https://kubernetes.io/

@@ -68,5 +68,5 @@ func (s *SystemService) RegistryLogin(ctx context.Context, auth types.AuthConfig
 // SystemService satisfies the SystemAPIClient interface that
 // the Docker client expects.
 //
-// hhttps://pkg.go.dev/github.com/docker/docker/client?tab=doc#SystemAPIClient
+// https://pkg.go.dev/github.com/docker/docker/client?tab=doc#SystemAPIClient
 var _ client.NetworkAPIClient = (*NetworkService)(nil)
