@@ -8,6 +8,7 @@ import (
 	"context"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/go-vela/types/pipeline"
 	velav1alpha1 "github.com/go-vela/worker/runtime/kubernetes/apis/vela/v1alpha1"
@@ -432,6 +433,10 @@ func TestKubernetes_StreamBuild(t *testing.T) {
 				} else if test.doReady {
 					// simulate AssembleBuild
 					close(_engine.PodTracker.Ready)
+					// simulate ExecBuild
+					time.Sleep(10 * time.Millisecond)
+					// then signal that the build is done
+					cancel()
 				}
 			}()
 
@@ -537,11 +542,12 @@ func TestKubernetes_AssembleBuild(t *testing.T) {
 func TestKubernetes_RemoveBuild(t *testing.T) {
 	// setup tests
 	tests := []struct {
-		name       string
-		failure    bool
-		createdPod bool
-		pipeline   *pipeline.Build
-		pod        *v1.Pod
+		name          string
+		failure       bool
+		createdPod    bool
+		streamingDone chan struct{}
+		pipeline      *pipeline.Build
+		pod           *v1.Pod
 	}{
 		{
 			name:       "stages-createdPod-pod in k8s",
@@ -585,6 +591,54 @@ func TestKubernetes_RemoveBuild(t *testing.T) {
 			pod:        &v1.Pod{},
 			createdPod: true,
 		},
+		{
+			name:          "stages-createdPod-streaming started-pod in k8s",
+			failure:       false,
+			createdPod:    true,
+			streamingDone: make(chan struct{}),
+			pipeline:      _stages,
+			pod:           _pod,
+		},
+		{
+			name:          "steps-createdPod-streaming started-pod in k8s",
+			failure:       false,
+			createdPod:    true,
+			streamingDone: make(chan struct{}),
+			pipeline:      _steps,
+			pod:           _pod,
+		},
+		{
+			name:          "stages-not createdPod-streaming started-pod not in k8s",
+			failure:       false,
+			createdPod:    false,
+			streamingDone: make(chan struct{}),
+			pipeline:      _stages,
+			pod:           &v1.Pod{},
+		},
+		{
+			name:          "steps-not createdPod-streaming started-pod not in k8s",
+			failure:       false,
+			createdPod:    false,
+			streamingDone: make(chan struct{}),
+			pipeline:      _steps,
+			pod:           &v1.Pod{},
+		},
+		{
+			name:          "stages-createdPod-streaming started-pod not in k8s",
+			failure:       true,
+			createdPod:    true,
+			streamingDone: make(chan struct{}),
+			pipeline:      _stages,
+			pod:           &v1.Pod{},
+		},
+		{
+			name:          "steps-createdPod-streaming started-pod not in k8s",
+			failure:       true,
+			createdPod:    true,
+			streamingDone: make(chan struct{}),
+			pipeline:      _steps,
+			pod:           &v1.Pod{},
+		},
 	}
 
 	// run tests
@@ -596,6 +650,14 @@ func TestKubernetes_RemoveBuild(t *testing.T) {
 			}
 
 			_engine.createdPod = test.createdPod
+			_engine.PodTracker.StreamingDone = test.streamingDone
+			if test.streamingDone != nil {
+				go func() {
+					// make sure RemoveBuild blocks for a moment
+					time.Sleep(5 * time.Millisecond)
+					close(test.streamingDone)
+				}()
+			}
 
 			err = _engine.RemoveBuild(context.Background(), test.pipeline)
 			if test.failure {
@@ -608,6 +670,10 @@ func TestKubernetes_RemoveBuild(t *testing.T) {
 
 			if err != nil {
 				t.Errorf("RemoveBuild returned err: %v", err)
+			}
+
+			if _engine.PodTracker != nil {
+				t.Errorf("RemoveBuild did not cleanup PodTracker")
 			}
 		})
 	}

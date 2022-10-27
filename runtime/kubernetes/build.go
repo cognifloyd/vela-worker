@@ -154,6 +154,15 @@ func (c *client) StreamBuild(ctx context.Context, b *pipeline.Build) error {
 	// Populate the PodTracker caches before creating the pipeline pod
 	c.PodTracker.Start(ctx)
 
+	// RemoveBuild blocks on the StreamingDone channel (if not nil)
+	c.PodTracker.StreamingDone = make(chan struct{})
+	// block till streaming context finishes
+	<-ctx.Done()
+	// then tell RemoveBuild it can continue
+	close(c.PodTracker.StreamingDone)
+
+	c.Logger.Tracef("finished streaming build %s from pod %s", b.ID, c.PodTracker.TrackedPod)
+
 	return nil
 }
 
@@ -246,6 +255,12 @@ func (c *client) AssembleBuild(ctx context.Context, b *pipeline.Build) error {
 // This deletes the kubernetes pod.
 func (c *client) RemoveBuild(ctx context.Context, b *pipeline.Build) error {
 	c.Logger.Tracef("removing build %s", b.ID)
+
+	// If there is a StreamingDone channel, wait for it to finish.
+	if c.PodTracker != nil && c.PodTracker.StreamingDone != nil {
+		<-c.PodTracker.StreamingDone
+		c.PodTracker.StreamingDone = nil
+	}
 
 	// PodTracker gets created in SetupBuild before pod is created
 	defer func() {

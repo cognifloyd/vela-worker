@@ -61,6 +61,9 @@ type podTracker struct {
 
 	// Ready signals when the PodTracker is done with setup and ready to Start.
 	Ready chan struct{}
+
+	// StreamingDone signals when the any requested streams have finished.
+	StreamingDone chan struct{}
 }
 
 // HandlePodAdd is an AddFunc for cache.ResourceEventHandlerFuncs for Pods.
